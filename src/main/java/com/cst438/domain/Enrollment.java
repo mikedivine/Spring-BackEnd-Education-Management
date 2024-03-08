@@ -7,11 +7,44 @@ public class Enrollment {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="enrollment_id")
-    int enrollmentId;
-	
-	// TODO complete this class
-    // add additional attribute for grade
-    // create relationship between enrollment and user entities
-    // create relationship between enrollment and section entities
-    // add getter/setter methods
+    private int enrollmentId;
+    private String grade;
+    @ManyToOne
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
+    @ManyToOne
+    @JoinColumn(name="section_no", nullable=false)
+    private Section section;
+
+    public int getEnrollmentId() {
+      return enrollmentId;
+    }
+
+    public void setEnrollmentId(int enrollmentId) {
+      this.enrollmentId = enrollmentId;
+    }
+
+    public String getGrade() {
+      return grade;
+    }
+
+    public void setGrade(String grade) {
+      this.grade = grade;
+    }
+
+    public User getUser() {
+      return user;
+    }
+
+    public void setUser(User user) {
+      this.user = user;
+    }
+
+    public Section getSection() {
+      return section;
+    }
+
+    public void setSection(Section section) {
+      this.section = section;
+    }
 }
