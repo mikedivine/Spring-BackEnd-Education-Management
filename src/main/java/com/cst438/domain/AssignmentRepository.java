@@ -9,12 +9,12 @@ public interface AssignmentRepository extends CrudRepository<Assignment, Integer
 
     // TODO uncomment the following lines as needed
 
-    @Query("select a from Assignment a where a.section.sectionNo=:sectionNo order by a.dueDate")
+    @Query("select a from Assignment a where a.section.sectionNo=:sectionNo order by a.due_date")
     List<Assignment> findBySectionNoOrderByDueDate(int sectionNo);
 
     @Query("select a from Assignment a join a.section.enrollments e " +
             "where a.section.term.year=:year and a.section.term.semester=:semester and" +
-            " e.user=:studentId order by a.due_date")
+            " e.user.id=:studentId order by a.due_date")
     List<Assignment> findByStudentIdAndYearAndSemesterOrderByDueDate(int studentId, int year, String semester);
 
 }
