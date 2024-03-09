@@ -37,4 +37,7 @@ public class Course {
         this.courseId = courseId;
     }
 
+    public List<Section> getSection() {
+        return section;
+    }
 }
