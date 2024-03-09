@@ -1,12 +1,7 @@
 package com.cst438.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-
+import jakarta.persistence.*;
 import java.util.List;
-
 @Entity
 public class Course {
     @Id
@@ -18,7 +13,7 @@ public class Course {
     @OneToMany(mappedBy="course")
     private List<Section> sections;
 
-     public String getTitle() {
+    public String getTitle() {
         return title;
     }
     public void setTitle(String title) {
