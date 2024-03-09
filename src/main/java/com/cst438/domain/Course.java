@@ -16,7 +16,7 @@ public class Course {
     private int credits;
 
     @OneToMany(mappedBy="course")
-    private List<Section> section;
+    private List<Section> sections;
 
      public String getTitle() {
         return title;
@@ -38,6 +38,6 @@ public class Course {
     }
 
     public List<Section> getSection() {
-        return section;
+        return sections;
     }
 }
