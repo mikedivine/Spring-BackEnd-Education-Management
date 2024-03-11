@@ -11,20 +11,15 @@ public class Assignment {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="assignment_id")
     private int assignmentId;
- 
-    // TODO  complete this class
+
     // add additional attributes for title, dueDate
     private String title;
-
     private Date due_date;
-
-
 
     // add relationship between assignment and section entities
     @ManyToOne
     @JoinColumn(name="section_no", nullable=false)
     private Section section;
-    // add getter and setter methods
 
     public int getAssignmentId() {
         return assignmentId;

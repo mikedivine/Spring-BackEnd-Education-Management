@@ -27,8 +27,6 @@ public class Section {
     @Column(name="instructor_email")
     private String instructorEmail;
 
-    // TODO  uncomment the following lines
-
     @OneToMany(mappedBy="section")
     List<Enrollment> enrollments;
 

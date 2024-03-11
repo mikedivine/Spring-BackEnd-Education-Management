@@ -8,7 +8,7 @@ public class Grade {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="grade_id")
     private int gradeId;
-    private int score;
+    private Integer score;
     @ManyToOne
     @JoinColumn(name="assignment_id", nullable=false)
     private Assignment assignment;
@@ -24,11 +24,11 @@ public class Grade {
       this.gradeId = gradeId;
     }
 
-    public int getScore() {
+    public Integer getScore() {
       return score;
     }
 
-    public void setScore(int score) {
+    public void setScore(Integer score) {
       this.score = score;
     }
 

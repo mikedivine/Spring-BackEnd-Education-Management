@@ -102,7 +102,7 @@ public class SectionController {
     }
 
     // ADMIN function to create a delete section
-    // delete will fail there are related assignments or enrollments
+    // delete will fail if there are related assignments or enrollments
     @DeleteMapping("/sections/{sectionno}")
     public void deleteSection(@PathVariable int sectionno) {
         Section s = sectionRepository.findById(sectionno).orElse(null);
@@ -179,7 +179,8 @@ public class SectionController {
         }
         return dto_list;
     }
-	
+
+    // List available Sections for Enrollment
     @GetMapping("/sections/open")
     public List<SectionDTO> getOpenSectionsForEnrollment() {
 
