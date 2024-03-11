@@ -1,7 +1,6 @@
 package com.cst438.domain;
 
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
@@ -16,7 +15,7 @@ public class Enrollment {
 
     // create relationship between enrollment and user entities
     @ManyToOne
-    @JoinColumn(name="id", nullable=false)
+    @JoinColumn(name="user_id", nullable=false)
     private User user;
 
     // create relationship between enrollment and section entities
@@ -24,6 +23,8 @@ public class Enrollment {
     @JoinColumn(name="section_no", nullable=false)
     private Section section;
 
+    @OneToMany(mappedBy="enrollment")
+    private List<Grade> grades;
     public int getEnrollmentId() {
         return enrollmentId;
     }
