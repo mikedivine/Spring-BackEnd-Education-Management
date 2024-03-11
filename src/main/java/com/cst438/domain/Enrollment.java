@@ -1,7 +1,6 @@
 package com.cst438.domain;
 
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
@@ -24,6 +23,8 @@ public class Enrollment {
     @JoinColumn(name="section_no", nullable=false)
     private Section section;
 
+    @OneToMany(mappedBy="enrollment")
+    private List<Grade> grades;
     public int getEnrollmentId() {
         return enrollmentId;
     }
