@@ -41,8 +41,6 @@ public class EnrollmentController {
         List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
         List<EnrollmentDTO> dto_list = new ArrayList<>();
         for (Enrollment e : enrollments) {
-            //find user of the enrollment
-            List<User> allUsers= userRepository.findAllByOrderByIdAsc();
             User user = e.getUser();
             Section section = e.getSection();
             Course course = section.getCourse();
@@ -80,6 +78,17 @@ public class EnrollmentController {
         // For each EnrollmentDTO in the list
         //  find the Enrollment entity using enrollmentId
         //  update the grade and save back to database
+        for (EnrollmentDTO e : dlist) {
+            Enrollment enrollment = enrollmentRepository.findEnrollmentByEnrollmentId(e.enrollmentId());
+            enrollment.setEnrollmentId(e.enrollmentId());
+            enrollment.setGrade(e.grade());
+            User user = userRepository.findByEmail(e.email());
+            enrollment.setUser((user));
+            Section section = sectionRepository.findBySectionId(e.sectionId());
+            enrollment.setSection(section);
+            enrollmentRepository.save(enrollment);
+
+        }
 
     }
 
