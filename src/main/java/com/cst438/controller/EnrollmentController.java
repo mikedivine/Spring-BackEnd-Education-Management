@@ -1,6 +1,7 @@
 package com.cst438.controller;
 
 
+import com.cst438.domain.*;
 import com.cst438.dto.EnrollmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,20 @@ public class EnrollmentController {
 
     // instructor downloads student enrollments for a section, ordered by student name
     // user must be instructor for the section
+
+
+    @Autowired
+    EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    SectionRepository sectionRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    CourseController courseController;
+
     @GetMapping("/sections/{sectionNo}/enrollments")
     public List<EnrollmentDTO> getEnrollments(
             @PathVariable("sectionNo") int sectionNo ) {
@@ -23,7 +38,36 @@ public class EnrollmentController {
         // TODO
 		//  hint: use enrollment repository findEnrollmentsBySectionNoOrderByStudentName method
         //  remove the following line when done
-        return null;
+        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
+        List<EnrollmentDTO> dto_list = new ArrayList<>();
+        for (Enrollment e : enrollments) {
+            //find user of the enrollment
+            List<User> allUsers= userRepository.findAllByOrderByIdAsc();
+            User user = e.getUser();
+            Section section = e.getSection();
+            Course course = section.getCourse();
+            Term term = section.getTerm();
+
+
+
+
+            dto_list.add(new EnrollmentDTO(e.getEnrollmentId(),
+                                            e.getGrade(),
+                                            user.getId(),
+                                            user.getName(),
+                                            user.getEmail(),
+                                            course.getCourseId(),
+                                            section.getSecId(),
+                                            section.getSectionNo(),
+                                            section.getBuilding(),
+                                            section.getRoom(),
+                                            section.getTimes(),
+                                            course.getCredits(),
+                                            term.getYear(),
+                                            term.getSemester()));
+
+        }
+        return dto_list;
     }
 
     // instructor uploads enrollments with the final grades for the section
