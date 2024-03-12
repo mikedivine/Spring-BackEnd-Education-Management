@@ -22,6 +22,9 @@ public class Assignment {
     @JoinColumn(name="section_no", nullable=false)
     private Section section;
 
+    @OneToMany(mappedBy="Assignment")
+    List<Grade> grades;
+
     public int getAssignmentId() {
         return assignmentId;
     }
@@ -54,4 +57,5 @@ public class Assignment {
         this.section = section;
     }
 
+    public List<Grade> getGrades() { return grades; }
 }
