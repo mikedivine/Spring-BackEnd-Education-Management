@@ -180,9 +180,7 @@ public class AssignmentController {
         // update the score and save the entity
 
     }
-
-
-
+    
     // student lists their assignments/grades for an enrollment ordered by due date
     // student must be enrolled in the section
     @GetMapping("/assignments")

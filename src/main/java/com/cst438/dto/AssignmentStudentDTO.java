@@ -6,7 +6,6 @@ import java.sql.Date;
  */
 public record AssignmentStudentDTO(
         int assignmentId,
-
         String title,
         Date dueDate,
         String courseId,
