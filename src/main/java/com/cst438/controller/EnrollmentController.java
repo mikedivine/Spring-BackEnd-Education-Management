@@ -15,10 +15,6 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class EnrollmentController {
 
-    // instructor downloads student enrollments for a section, ordered by student name
-    // user must be instructor for the section
-
-
     @Autowired
     EnrollmentRepository enrollmentRepository;
 
@@ -31,12 +27,13 @@ public class EnrollmentController {
     @Autowired
     CourseController courseController;
 
+    // instructor downloads student enrollments for a section, ordered by student name
+    // user must be instructor for the section
     @GetMapping("/sections/{sectionNo}/enrollments")
     public List<EnrollmentDTO> getEnrollments(
-            @PathVariable("sectionNo") int sectionNo ) {
+      @PathVariable("sectionNo") int sectionNo ) {
 
-        // TODO
-		//  hint: use enrollment repository findEnrollmentsBySectionNoOrderByStudentName method
+		    //  hint: use enrollment repository findEnrollmentsBySectionNoOrderByStudentName method
         //  remove the following line when done
         List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
         List<EnrollmentDTO> dto_list = new ArrayList<>();
@@ -46,24 +43,24 @@ public class EnrollmentController {
             Course course = section.getCourse();
             Term term = section.getTerm();
 
-
-
-
-            dto_list.add(new EnrollmentDTO(e.getEnrollmentId(),
-                                            e.getGrade(),
-                                            user.getId(),
-                                            user.getName(),
-                                            user.getEmail(),
-                                            course.getCourseId(),
-                                            section.getSecId(),
-                                            section.getSectionNo(),
-                                            section.getBuilding(),
-                                            section.getRoom(),
-                                            section.getTimes(),
-                                            course.getCredits(),
-                                            term.getYear(),
-                                            term.getSemester()));
-
+            dto_list.add(
+              new EnrollmentDTO(
+                e.getEnrollmentId(),
+                e.getGrade(),
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                course.getCourseId(),
+                section.getSecId(),
+                section.getSectionNo(),
+                section.getBuilding(),
+                section.getRoom(),
+                section.getTimes(),
+                course.getCredits(),
+                term.getYear(),
+                term.getSemester()
+              )
+            );
         }
         return dto_list;
     }
@@ -73,23 +70,24 @@ public class EnrollmentController {
     @PutMapping("/enrollments")
     public void updateEnrollmentGrade(@RequestBody List<EnrollmentDTO> dlist) {
 
-        // TODO
-
         // For each EnrollmentDTO in the list
         //  find the Enrollment entity using enrollmentId
         //  update the grade and save back to database
         for (EnrollmentDTO e : dlist) {
             Enrollment enrollment = enrollmentRepository.findEnrollmentByEnrollmentId(e.enrollmentId());
-            enrollment.setEnrollmentId(e.enrollmentId());
             enrollment.setGrade(e.grade());
-            User user = userRepository.findByEmail(e.email());
-            enrollment.setUser((user));
-            //Section section = sectionRepository.findBySectionId(e.sectionId());
-            //enrollment.setSection(section);
             enrollmentRepository.save(enrollment);
-
         }
-
     }
 
+  private void instructorExists(User user) {
+    // Verify user exists and is a student
+    if (user == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+    if (!(user.getType().equals("STUDENT"))) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+        "You have attempted to add a course to a user that is not a student.");
+    }
+  }
 }

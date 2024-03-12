@@ -46,13 +46,28 @@ public class StudentController {
 
         List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
         List<EnrollmentDTO> dto_list = new ArrayList<>();
-
-        // list course_id, sec_id, title, credit, grade in chronological order
         for (Enrollment e : enrollments) {
-          dto_list.add(new EnrollmentDTO(e.getEnrollmentId(), e.getGrade(), e.getUser().getId(),
-            e.getUser().getName(), e.getUser().getEmail(), e.getSection().getCourse().getCourseId(), e.getSection().getSecId(),
-            e.getSection().getSectionNo(), e.getSection().getBuilding(), e.getSection().getRoom(), e.getSection().getTimes(),
-            e.getSection().getCourse().getCredits(), e.getSection().getTerm().getYear(), e.getSection().getTerm().getSemester()));
+          Section section = e.getSection();
+          Course course = section.getCourse();
+          Term term = section.getTerm();
+          dto_list.add(
+            new EnrollmentDTO(
+              e.getEnrollmentId(),
+              e.getGrade(),
+              user.getId(),
+              user.getName(),
+              user.getEmail(),
+              course.getCourseId(),
+              section.getSecId(),
+              section.getSectionNo(),
+              section.getBuilding(),
+              section.getRoom(),
+              section.getTimes(),
+              course.getCredits(),
+              term.getYear(),
+              term.getSemester()
+            )
+          );
         }
         return dto_list;
     }
@@ -73,10 +88,27 @@ public class StudentController {
         List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
         List<EnrollmentDTO> dto_list = new ArrayList<>();
         for (Enrollment e : enrollments) {
-          dto_list.add(new EnrollmentDTO(e.getEnrollmentId(), e.getGrade(), e.getUser().getId(),
-            e.getUser().getName(), e.getUser().getEmail(), e.getSection().getCourse().getCourseId(), e.getSection().getSecId(),
-            e.getSection().getSectionNo(), e.getSection().getBuilding(), e.getSection().getRoom(), e.getSection().getTimes(),
-            e.getSection().getCourse().getCredits(), e.getSection().getTerm().getYear(), e.getSection().getTerm().getSemester()));
+          Section section = e.getSection();
+          Course course = section.getCourse();
+          Term term = section.getTerm();
+          dto_list.add(
+            new EnrollmentDTO(
+              e.getEnrollmentId(),
+              e.getGrade(),
+              user.getId(),
+              user.getName(),
+              user.getEmail(),
+              course.getCourseId(),
+              section.getSecId(),
+              section.getSectionNo(),
+              section.getBuilding(),
+              section.getRoom(),
+              section.getTimes(),
+              course.getCredits(),
+              term.getYear(),
+              term.getSemester()
+            )
+          );
         }
         return dto_list;
     }
