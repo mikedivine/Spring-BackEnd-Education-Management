@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,19 +35,39 @@ public class AssignmentController {
     @Autowired
     GradeRepository gradeRepository;
 
+    @Autowired
+    CourseRepository courseRepository;
+
+    @Autowired
+    SectionRepository sectionRepository;
+
     // instructor lists assignments for a section.  Assignments ordered by due date.
     // logged in user must be the instructor for the section
     @GetMapping("/sections/{secNo}/assignments")
     public List<AssignmentDTO> getAssignments(
             @PathVariable("secNo") int secNo) {
 
-        // TODO remove the following line when done
+        // TODO remove the following line when done --- Still need to check for instructor
 		
 		// hint: use the assignment repository method 
 		//  findBySectionNoOrderByDueDate to return 
 		//  a list of assignments
-
-        return null;
+        List<Assignment> assignments = assignmentRepository.findBySectionNoOrderByDueDate(secNo);
+        List<AssignmentDTO> dto_list = new ArrayList<>();
+        for(Assignment a : assignments) {
+            Section section = a.getSection();
+            Course course = section.getCourse();
+            dto_list.add(
+                new AssignmentDTO(
+                    a.getAssignmentId(),
+                    a.getTitle(),
+                    a.getDue_date().toString(),
+                    course.getCourseId(),
+                    section.getSecId(),
+                    section.getSectionNo()
+                    ));
+        }
+        return dto_list;
     }
 
     // add assignment
@@ -56,9 +77,41 @@ public class AssignmentController {
     public AssignmentDTO createAssignment(
             @RequestBody AssignmentDTO dto) {
 
-        // TODO remove the following line when done
+        /* TODO remove the following line when done - Still need to check for instructor
+         */
 
-        return null;
+        Assignment a = new Assignment();
+        a.setAssignmentId(dto.id());
+        a.setTitle(dto.title());
+        a.setDue_date(Date.valueOf(dto.dueDate()));
+
+        //check if the course exists
+        Course c = courseRepository.findById(dto.courseId()).orElse(null);
+        if(c==null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found " + dto.id());
+        }
+
+        //check if the section exists
+        Section s = sectionRepository.findBySecIdAndSectionNo(dto.secId(),dto.secNo());
+        if (s==null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "section not found " + dto.secId());
+        }
+
+        //link the assignment to the section
+        a.setSection(s);
+
+        //save Assignment ID, Title, Duedate, and Section to Assignment Table.
+        assignmentRepository.save(a);
+
+        //return the information
+        return new AssignmentDTO(
+                a.getAssignmentId(),
+                a.getTitle(),
+                dto.dueDate(),
+                c.getCourseId(),
+                s.getSecId(),
+                s.getSectionNo()
+        );
     }
 
     // update assignment for a section.  Only title and dueDate may be changed.
@@ -67,9 +120,23 @@ public class AssignmentController {
     @PutMapping("/assignments")
     public AssignmentDTO updateAssignment(@RequestBody AssignmentDTO dto) {
 
-        // TODO remove the following line when done
-
-        return null;
+        // TODO remove the following line when done -- Still need to check for instructor
+        Assignment a = assignmentRepository.findById(dto.id()).orElse(null);
+        if (a==null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "assignment not found " + dto.id());
+        } else {
+            a.setTitle(dto.title());
+            a.setDue_date(Date.valueOf(dto.dueDate()));
+            assignmentRepository.save(a);
+            return new AssignmentDTO(
+                    a.getAssignmentId(),
+                    a.getTitle(),
+                    a.getDue_date().toString(),
+                    null,
+                    a.getSection().getSecId(),
+                    a.getSection().getSectionNo()
+            );
+        }
     }
 
     // delete assignment for a section
@@ -77,7 +144,12 @@ public class AssignmentController {
     @DeleteMapping("/assignments/{assignmentId}")
     public void deleteAssignment(@PathVariable("assignmentId") int assignmentId) {
 
-        // TODO
+        // TODO -- done
+        Assignment a = assignmentRepository.findById(assignmentId).orElse(null);
+        //if assignment does not exist, do nothing.
+        if(a!=null){
+            assignmentRepository.delete(a);
+        }
     }
 
     // instructor gets grades for assignment ordered by student name
