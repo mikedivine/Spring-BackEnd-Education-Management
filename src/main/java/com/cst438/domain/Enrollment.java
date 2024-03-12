@@ -25,6 +25,7 @@ public class Enrollment {
 
     @OneToMany(mappedBy="enrollment")
     private List<Grade> grades;
+
     public int getEnrollmentId() {
         return enrollmentId;
     }

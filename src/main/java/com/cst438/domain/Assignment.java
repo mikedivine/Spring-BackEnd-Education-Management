@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 @Entity
 public class Assignment {
@@ -52,4 +53,5 @@ public class Assignment {
     public void setSection(Section section) {
         this.section = section;
     }
+
 }

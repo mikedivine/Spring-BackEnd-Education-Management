@@ -84,8 +84,8 @@ public class EnrollmentController {
             enrollment.setGrade(e.grade());
             User user = userRepository.findByEmail(e.email());
             enrollment.setUser((user));
-            Section section = sectionRepository.findBySectionId(e.sectionId());
-            enrollment.setSection(section);
+            //Section section = sectionRepository.findBySectionId(e.sectionId());
+            //enrollment.setSection(section);
             enrollmentRepository.save(enrollment);
 
         }

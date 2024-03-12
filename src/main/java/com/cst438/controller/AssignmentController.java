@@ -3,6 +3,7 @@ package com.cst438.controller;
 import com.cst438.domain.*;
 import com.cst438.dto.AssignmentDTO;
 import com.cst438.dto.AssignmentStudentDTO;
+import com.cst438.dto.EnrollmentDTO;
 import com.cst438.dto.GradeDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,17 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class AssignmentController {
 
+    @Autowired
+    AssignmentRepository assignmentRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    GradeRepository gradeRepository;
 
     // instructor lists assignments for a section.  Assignments ordered by due date.
     // logged in user must be the instructor for the section
@@ -103,16 +115,38 @@ public class AssignmentController {
     // student must be enrolled in the section
     @GetMapping("/assignments")
     public List<AssignmentStudentDTO> getStudentAssignments(
-            @RequestParam("studentId") int studentId,
-            @RequestParam("year") int year,
-            @RequestParam("semester") String semester) {
+      @RequestParam("studentId") int studentId,
+      @RequestParam("year") int year,
+      @RequestParam("semester") String semester) {
 
-        // TODO remove the following line when done
+        User user = userRepository.findById(studentId).orElse(null);
+        // Verify user exists and is a student
+        studentExists(user);
+        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
 
+        List<Assignment> assignments = assignmentRepository.findByStudentIdAndYearAndSemesterOrderByDueDate(studentId, year, semester);
+
+        List<AssignmentStudentDTO> dto_list = new ArrayList<>();
+//        for (Assignment a : assignments) {
+//          //Grade g = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollmentId, a.getAssignmentId());
+//          dto_list.add(new AssignmentStudentDTO(a.getAssignmentId(), a.getTitle(), a.getDue_date(),
+//            a.getSection().getCourse().getCourseId(), a.getSection().getSecId(), a.getScore()));
+//        }
+//        return dto_list;
+        return null;
         // return a list of assignments and (if they exist) the assignment grade
         //  for all sections that the student is enrolled for the given year and semester
-		//  hint: use the assignment repository method findByStudentIdAndYearAndSemesterOrderByDueDate
+        //  hint: use the assignment repository method findByStudentIdAndYearAndSemesterOrderByDueDate
+    }
 
-        return null;
+    private void studentExists(User user) {
+      // Verify user exists and is a student
+      if (user == null) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+      }
+      if (!(user.getType().equals("STUDENT"))) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "You have attempted to add a course to a user that is not a student.");
+      }
     }
 }
