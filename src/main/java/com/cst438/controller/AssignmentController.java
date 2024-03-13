@@ -176,24 +176,28 @@ public class AssignmentController {
     @GetMapping("/assignments/{assignmentId}/grades")
     public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
 
-        // Finds the assignment by ID to get its related sectionNo
-        Assignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
+      // Finds the assignment by ID to get its related sectionNo
+      Assignment assignment = assignmentRepository.findById(assignmentId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
 
-        // Gets all enrollments found under the sections related to the assignment id
-        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(assignment.getSection().getSectionNo());
+      // Gets all enrollments found under the sections related to the assignment id
+      List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(assignment.getSection().getSectionNo());
 
-        List<GradeDTO> gradeDTOs = new ArrayList<>();
+      List<GradeDTO> gradeDTOs = new ArrayList<>();
 
-        for (Enrollment enrollment : enrollments) {
-            // Finds the assignment grade related to the assignmentID and enrollmentID
-            Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.findById(), assignmentId)
-                    .orElse(new Grade(null, enrollment.findById(), assignmentId)); // Create a new grade if it doesn't exist
-            gradeRepository.save(grade); // Save the new grade if it was created
-            gradeDTOs.add(new GradeDTO(grade.findById(), grade.getScore()));
-        }
-        return gradeDTOs;
-
+      for (Enrollment enrollment : enrollments) {
+        // Finds the assignment grade related to the assignmentID and enrollmentID
+        Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getEnrollmentId(), assignmentId); // Create a new grade if it doesn't exist
+        gradeRepository.save(grade); // Save the new grade if it was created
+        gradeDTOs.add(new GradeDTO(grade.getGradeId(),
+          enrollment.getUser().getName(),
+          enrollment.getUser().getEmail(),
+          grade.getAssignment().getTitle(),
+          enrollment.getSection().getCourse().getCourseId(),
+          enrollment.getSection().getSecId(),
+          grade.getScore()));
+      }
+      return gradeDTOs;
     }
 
     // instructor uploads grades for assignment
@@ -202,15 +206,15 @@ public class AssignmentController {
     public void updateGrades(@RequestBody List<GradeDTO> dlist) {
 
         for (GradeDTO gradeDTO : dlist) {
-            // Retrieve the Grade entity from the DB using the ID from the DTO provided
-            Grade grade = gradeRepository.findById(gradeDTO.findById())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grade not found"));
+          // Retrieve the Grade entity from the DB using the ID from the DTO provided
+          Grade grade = gradeRepository.findById(gradeDTO.gradeId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grade not found"));
 
-            // Updates the score of the Grade in the DB
-            grade.setScore(gradeDTO.getScore());
+          // Updates the score of the Grade in the DB
+          grade.setScore(gradeDTO.score());
 
-            // Saves the updated Grade in the DB
-            gradeRepository.save(grade);
+          // Saves the updated Grade in the DB
+          gradeRepository.save(grade);
         }
 
     }
@@ -234,38 +238,29 @@ public class AssignmentController {
             //creates a list of AssignmentStudentDTO's based on the list of assignments above
             for(Assignment assignment : assignments){
                 String courseId = section.getCourse().getCourseId();
-                Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(studentId, assignment.getAssignmentId());
-                Integer score = grade.getScore();
-                assignmentDTO.add(new AssignmentStudentDTO(
-                        assignment.getAssignmentId(),
-                        assignment.getTitle(),
-                        assignment.getDue_date(),
-                        courseId,
-                        assignment.getSection().getSecId(),
-                        score
+              Enrollment enrollment = enrollmentRepository.findEnrollmentBySectionNoAndStudentId(
+                section.getSectionNo(), studentId);
+              Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(
+                enrollment.getEnrollmentId(), assignment.getAssignmentId());
+              Integer score = -1;
 
+              if (grade != null) {
+                score = grade.getScore();
+              }
+
+              assignmentDTO.add(
+                new AssignmentStudentDTO(
+                  assignment.getAssignmentId(),
+                  assignment.getTitle(),
+                  assignment.getDue_date(),
+                  courseId,
+                  assignment.getSection().getSecId(),
+                  score
                 ));
             }
 
         }
 
-
-
- /*       User user = userRepository.findById(studentId).orElse(null);
-        // Verify user exists and is a student
-        studentExists(user);
-
-        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
-
-        List<Assignment> assignments = assignmentRepository.findByStudentIdAndYearAndSemesterOrderByDueDate(studentId, year, semester);
-
-        List<AssignmentStudentDTO> dto_list = new ArrayList<>();*/
-//        for (Assignment a : assignments) {
-//          Grade g = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollmentId, a.getAssignmentId());
-//          dto_list.add(new AssignmentStudentDTO(a.getAssignmentId(), a.getTitle(), a.getDue_date(),
-//            a.getSection().getCourse().getCourseId(), a.getSection().getSecId(), a.getScore()));
-//        }
-//        return dto_list;
         return assignmentDTO;
         // return a list of assignments and (if they exist) the assignment grade
         //  for all sections that the student is enrolled for the given year and semester
