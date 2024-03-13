@@ -68,7 +68,7 @@ public class EnrollmentController {
     // instructor uploads enrollments with the final grades for the section
     // user must be instructor for the section
     @PutMapping("/enrollments")
-    public void updateEnrollmentGrade(@RequestBody List<EnrollmentDTO> dlist) {
+    public void updateEnrollmentGrades(@RequestBody List<EnrollmentDTO> dlist) {
 
         // For each EnrollmentDTO in the list
         //  find the Enrollment entity using enrollmentId
