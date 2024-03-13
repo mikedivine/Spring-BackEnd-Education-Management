@@ -201,10 +201,17 @@ public class AssignmentController {
     @PutMapping("/grades")
     public void updateGrades(@RequestBody List<GradeDTO> dlist) {
 
-        // TODO
+        for (GradeDTO gradeDTO : dlist) {
+            // Retrieve the Grade entity from the DB using the ID from the DTO provided
+            Grade grade = gradeRepository.findById(gradeDTO.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grade not found"));
 
-        // for each grade in the GradeDTO list, retrieve the grade entity
-        // update the score and save the entity
+            // Updates the score of the Grade in the DB
+            grade.setScore(gradeDTO.getScore());
+
+            // Saves the updated Grade in the DB
+            gradeRepository.save(grade);
+        }
 
     }
     
