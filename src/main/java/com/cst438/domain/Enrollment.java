@@ -58,7 +58,4 @@ public class Enrollment {
         this.section = section;
     }
 
-    public int getId() {
-        return enrollmentId;
-    }
 }
