@@ -16,11 +16,14 @@ public class Section {
     @ManyToOne
     @JoinColumn(name="course_id", nullable=false)
     private Course course;
+
     @ManyToOne
     @JoinColumn(name="term_id", nullable=false)
     private Term term;
+
     @Column(name="sec_id")
     private int secId;   // sequential numbering of sections of a course in a term:  1, 2, 3, ....
+
     private String building;
     private String room;
     private String times;
