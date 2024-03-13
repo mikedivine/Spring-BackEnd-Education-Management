@@ -187,10 +187,10 @@ public class AssignmentController {
 
         for (Enrollment enrollment : enrollments) {
             // Finds the assignment grade related to the assignmentID and enrollmentID
-            Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getId(), assignmentId)
-                    .orElse(new Grade(null, enrollment.getId(), assignmentId)); // Create a new grade if it doesn't exist
+            Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.findById(), assignmentId)
+                    .orElse(new Grade(null, enrollment.findById(), assignmentId)); // Create a new grade if it doesn't exist
             gradeRepository.save(grade); // Save the new grade if it was created
-            gradeDTOs.add(new GradeDTO(grade.getId(), grade.getScore()));
+            gradeDTOs.add(new GradeDTO(grade.findById(), grade.getScore()));
         }
         return gradeDTOs;
 
@@ -203,7 +203,7 @@ public class AssignmentController {
 
         for (GradeDTO gradeDTO : dlist) {
             // Retrieve the Grade entity from the DB using the ID from the DTO provided
-            Grade grade = gradeRepository.findById(gradeDTO.getId())
+            Grade grade = gradeRepository.findById(gradeDTO.findById())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grade not found"));
 
             // Updates the score of the Grade in the DB
