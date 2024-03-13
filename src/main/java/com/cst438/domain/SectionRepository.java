@@ -25,8 +25,8 @@ public interface SectionRepository extends CrudRepository<Section, Integer> {
             "where c.courseId=:courseId and s.term.year=:year and s.term.semester=:semester")
     List<Section> findByCourseIdAndYearAndSemester(String courseId, int year, String semester);
 
-    @Query("select s from Section s where s.secId =:secId and s.sectionNo =:sectionNo")
-    Section findBySecIdAndSectionNo(int secId, int sectionNo);
+    @Query("select s from Section s where s.sectionNo =:sectionNo")
+    Section findBySectionNo(int sectionNo);
 
     @Query("select s from Section s " +
             "join s.term t " +
