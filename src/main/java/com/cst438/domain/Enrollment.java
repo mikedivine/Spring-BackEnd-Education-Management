@@ -57,4 +57,8 @@ public class Enrollment {
     public void setSection(Section section) {
         this.section = section;
     }
+
+    public int getId() {
+        return enrollmentId;
+    }
 }

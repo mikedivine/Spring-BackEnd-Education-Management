@@ -187,10 +187,16 @@ public class AssignmentController {
 
         for (Enrollment enrollment : enrollments) {
             // Finds the assignment grade related to the assignmentID and enrollmentID
-            Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.findById(), assignmentId)
-                    .orElse(new Grade(null, enrollment.findById(), assignmentId)); // Create a new grade if it doesn't exist
+            Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getEnrollmentId(), assignmentId)
+                    .orElse(new Grade(null, enrollment.getEnrollmentId(), assignmentId)); // Create a new grade if it doesn't exist
             gradeRepository.save(grade); // Save the new grade if it was created
-            gradeDTOs.add(new GradeDTO(grade.findById(), grade.getScore()));
+            gradeDTOs.add(new GradeDTO(grade.getGradeId(),
+                                        enrollment.getUser().getName(),
+                                        enrollment.getUser().getEmail(),
+                                        grade.getAssignment().getTitle(),
+                                        enrollment.getSection().getCourse().getCourseId(),
+                                        enrollment.getSection().getSecId(),
+                                        grade.getScore()));
         }
         return gradeDTOs;
 
@@ -214,7 +220,7 @@ public class AssignmentController {
             gradeRepository.save(grade);
         }
     }
-    
+
     // student lists their assignments/grades for an enrollment ordered by due date
     // student must be enrolled in the section
     @GetMapping("/assignments")
