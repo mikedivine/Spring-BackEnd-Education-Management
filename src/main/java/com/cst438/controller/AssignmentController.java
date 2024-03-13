@@ -189,21 +189,49 @@ public class AssignmentController {
       @RequestParam("year") int year,
       @RequestParam("semester") String semester) {
 
-        User user = userRepository.findById(studentId).orElse(null);
+        //creates a list of sections based on studentId, year, semester
+        List<Section> sections = sectionRepository.findByStudentIdAndYearAndSemester(studentId, year, semester);
+        List<AssignmentStudentDTO> assignmentDTO = new ArrayList<>();
+
+        //creates a list assignments for the sections above
+        for (Section section : sections){
+            List<Assignment> assignments = assignmentRepository.findBySectionNoOrderByDueDate(section.getSectionNo());
+
+            //creates a list of AssignmentStudentDTO's based on the list of assignments above
+            for(Assignment assignment : assignments){
+                String courseId = section.getCourse().getCourseId();
+                Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(studentId, assignment.getAssignmentId());
+                Integer score = grade.getScore();
+                assignmentDTO.add(new AssignmentStudentDTO(
+                                    assignment.getAssignmentId(),
+                                    assignment.getTitle(),
+                                    assignment.getDue_date(),
+                                    courseId,
+                                    assignment.getSection().getSecId(),
+                                    score
+
+               ));
+            }
+
+        }
+
+
+
+ /*       User user = userRepository.findById(studentId).orElse(null);
         // Verify user exists and is a student
         studentExists(user);
         List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
 
         List<Assignment> assignments = assignmentRepository.findByStudentIdAndYearAndSemesterOrderByDueDate(studentId, year, semester);
 
-        List<AssignmentStudentDTO> dto_list = new ArrayList<>();
+        List<AssignmentStudentDTO> dto_list = new ArrayList<>();*/
 //        for (Assignment a : assignments) {
 //          //Grade g = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollmentId, a.getAssignmentId());
 //          dto_list.add(new AssignmentStudentDTO(a.getAssignmentId(), a.getTitle(), a.getDue_date(),
 //            a.getSection().getCourse().getCourseId(), a.getSection().getSecId(), a.getScore()));
 //        }
 //        return dto_list;
-        return null;
+        return assignmentDTO;
         // return a list of assignments and (if they exist) the assignment grade
         //  for all sections that the student is enrolled for the given year and semester
         //  hint: use the assignment repository method findByStudentIdAndYearAndSemesterOrderByDueDate
