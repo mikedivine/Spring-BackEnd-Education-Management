@@ -174,19 +174,26 @@ public class AssignmentController {
     // instructor gets grades for assignment ordered by student name
     // user must be instructor for the section
     @GetMapping("/assignments/{assignmentId}/grades")
-    public List<GradeDTO> getAssignmentGrades(
-      @PathVariable("assignmentId") int assignmentId) {
+    public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
 
-        // TODO remove the following line when done
+        // Finds the assignment by ID to get its related sectionNo
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Assignment not found"));
 
-        // get the list of enrollments for the section related to this assignment.
-		// hint: use te enrollment repository method findEnrollmentsBySectionOrderByStudentName.
-        // for each enrollment, get the grade related to the assignment and enrollment
-		//   hint: use the gradeRepository findByEnrollmentIdAndAssignmentId method.
-        //   if the grade does not exist, create a grade entity and set the score to NULL
-        //   and then save the new entity
+        // Gets all enrollments found under the sections related to the assignment id
+        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(assignment.getSection().getSectionNo());
 
-        return null;
+        List<GradeDTO> gradeDTOs = new ArrayList<>();
+
+        for (Enrollment enrollment : enrollments) {
+            // Finds the assignment grade related to the assignmentID and enrollmentID
+            Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getId(), assignmentId)
+                    .orElse(new Grade(null, enrollment.getId(), assignmentId)); // Create a new grade if it doesn't exist
+            gradeRepository.save(grade); // Save the new grade if it was created
+            gradeDTOs.add(new GradeDTO(grade.getId(), grade.getScore()));
+        }
+        return gradeDTOs;
+
     }
 
     // instructor uploads grades for assignment
