@@ -186,21 +186,34 @@ public class AssignmentController {
         instructorExists(instructorEmail, s.getInstructorEmail());
 
         // Gets all enrollments found under the sections related to the assignment id
-        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(assignment.getSection().getSectionNo());
+        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(
+          assignment.getSection().getSectionNo());
+
+        if (enrollments == null) {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "No enrollments found.");
+        }
 
         List<GradeDTO> gradeDTOs = new ArrayList<>();
 
         for (Enrollment enrollment : enrollments) {
           // Finds the assignment grade related to the assignmentID and enrollmentID
-          Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(enrollment.getEnrollmentId(), assignmentId); // Create a new grade if it doesn't exist
-          gradeRepository.save(grade); // Save the new grade if it was created
-          gradeDTOs.add(new GradeDTO(grade.getGradeId(),
-            enrollment.getUser().getName(),
-            enrollment.getUser().getEmail(),
-            grade.getAssignment().getTitle(),
-            enrollment.getSection().getCourse().getCourseId(),
-            enrollment.getSection().getSecId(),
-            grade.getScore()));
+          Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(
+            enrollment.getEnrollmentId(), assignmentId); // Create a new grade if it doesn't exist
+
+            if (!(grade == null)) {
+                gradeDTOs.add(new GradeDTO(grade.getGradeId(),
+                enrollment.getUser().getName(),
+                enrollment.getUser().getEmail(),
+                grade.getAssignment().getTitle(),
+                enrollment.getSection().getCourse().getCourseId(),
+                enrollment.getSection().getSecId(),
+                grade.getScore()));
+            }
+        }
+        if (gradeDTOs.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "No Grades found.");
         }
         return gradeDTOs;
     }
