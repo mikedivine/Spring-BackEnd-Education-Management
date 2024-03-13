@@ -173,9 +173,11 @@ public class StudentController {
     @DeleteMapping("/enrollments/{enrollmentId}")
     public void dropCourse(
      @PathVariable("enrollmentId") int enrollmentId,
-     @RequestBody int studentId) {
+     @RequestBody UserDTO userDTO) {
 
-        User user = userRepository.findById(studentId).orElse(null);
+        User user = new User();
+        user.setId(userDTO.id());
+        user.setType(userDTO.type());
         // Verify user exists and is a student
         studentExists(user);
 
