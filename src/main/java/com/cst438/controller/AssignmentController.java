@@ -43,12 +43,9 @@ public class AssignmentController {
     @GetMapping("/sections/{secNo}/assignments")
     public List<AssignmentDTO> getAssignments(
       @PathVariable("secNo") int secNo,
-      @RequestBody UserDTO userDTO) {
+      @RequestParam("instructorId") int instructorId) {
 
-        User user = new User();
-        user.setId(userDTO.id());
-        user.setType(userDTO.type());
-
+        User user = userRepository.findById(instructorId).orElse(null);
         // Verify user exists and is an instructor
         instructorExists(user);
 
@@ -79,12 +76,10 @@ public class AssignmentController {
     @PostMapping("/assignments")
     public AssignmentDTO createAssignment(
       @RequestBody AssignmentDTO assignmentDTO,
-      @RequestBody UserDTO userDTO) {
+      @RequestParam("instructorId") int instructorId
+      ) {
 
-        User user = new User();
-        user.setId(userDTO.id());
-        user.setType(userDTO.type());
-
+        User user = userRepository.findById(instructorId).orElse(null);
         // Verify user exists and is an instructor
         instructorExists(user);
 
@@ -128,7 +123,7 @@ public class AssignmentController {
     @PutMapping("/assignments")
     public AssignmentDTO updateAssignment(
             @RequestBody AssignmentDTO dto,
-            @RequestBody int instructorId
+            @RequestParam("instructorId") int instructorId
     ) {
 
         User user = userRepository.findById(instructorId).orElse(null);
@@ -158,7 +153,7 @@ public class AssignmentController {
     @DeleteMapping("/assignments/{assignmentId}")
     public void deleteAssignment(
             @PathVariable("assignmentId") int assignmentId,
-            @RequestBody int instructorId
+            @RequestParam("instructorId") int instructorId
     ) {
 
         User user = userRepository.findById(instructorId).orElse(null);
@@ -175,7 +170,9 @@ public class AssignmentController {
     // instructor gets grades for assignment ordered by student name
     // user must be instructor for the section
     @GetMapping("/assignments/{assignmentId}/grades")
-    public List<GradeDTO> getAssignmentGrades(@PathVariable("assignmentId") int assignmentId) {
+    public List<GradeDTO> getAssignmentGrades(
+      @PathVariable("assignmentId") int assignmentId,
+      @RequestParam("instructorId") int studentId) {
 
       // Finds the assignment by ID to get its related sectionNo
       Assignment assignment = assignmentRepository.findById(assignmentId)
@@ -204,7 +201,8 @@ public class AssignmentController {
     // instructor uploads grades for assignment
     // user must be instructor for the section
     @PutMapping("/grades")
-    public void updateGrades(@RequestBody List<GradeDTO> dlist) {
+    public void updateGrades(
+      @RequestBody List<GradeDTO> dlist) {
 
         for (GradeDTO gradeDTO : dlist) {
           // Retrieve the Grade entity from the DB using the ID from the DTO provided
