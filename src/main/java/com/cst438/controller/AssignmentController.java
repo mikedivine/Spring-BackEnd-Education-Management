@@ -226,11 +226,17 @@ public class AssignmentController {
       @RequestParam("instructorEmail") String instructorEmail
       ) {
 
+
         for (GradeDTO gradeDTO : dlist) {
           // Retrieve the Grade entity from the DB using the ID from the DTO provided
           Grade grade = gradeRepository.findById(gradeDTO.gradeId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grade not found"));
 
+          Enrollment e = grade.getEnrollment();
+          Section s = e.getSection();
+
+          // Verify user exists and is an instructor and is the correct instructor
+          instructorExists(instructorEmail, s.getInstructorEmail());
           // Updates the score of the Grade in the DB
           grade.setScore(gradeDTO.score());
 
