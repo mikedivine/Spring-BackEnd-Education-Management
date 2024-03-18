@@ -43,37 +43,16 @@ public class StudentController {
 
         User user = userRepository.findById(studentId).orElse(null);
         // Verify user exists and is a student
-        studentExists(user);
+        validateStudent(user);
 
-        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
-        List<EnrollmentDTO> dto_list = new ArrayList<>();
-        for (Enrollment e : enrollments) {
-          Section section = e.getSection();
-          Course course = section.getCourse();
-          Term term = section.getTerm();
-          dto_list.add(
-            new EnrollmentDTO(
-              e.getEnrollmentId(),
-              e.getGrade(),
-              user.getId(),
-              user.getName(),
-              user.getEmail(),
-              course.getCourseId(),
-              section.getSecId(),
-              section.getSectionNo(),
-              section.getBuilding(),
-              section.getRoom(),
-              section.getTimes(),
-              course.getCredits(),
-              term.getYear(),
-              term.getSemester()
-            )
-          );
-        }
-        return dto_list;
+        List<Enrollment> enrollments =
+          enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
+
+        return getEnrollmentDTOS(user, enrollments);
     }
 
-    // student gets a list of their enrollments for the given year, semester
+
+  // student gets a list of their enrollments for the given year, semester
     // user must be student
     // studentId will be temporary until Login security is implemented
     @GetMapping("/enrollments")
@@ -84,34 +63,12 @@ public class StudentController {
 
         User user = userRepository.findById(studentId).orElse(null);
         // Verify user exists and is a student
-        studentExists(user);
+        validateStudent(user);
 
-        List<Enrollment> enrollments = enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
-        List<EnrollmentDTO> dto_list = new ArrayList<>();
-        for (Enrollment e : enrollments) {
-          Section section = e.getSection();
-          Course course = section.getCourse();
-          Term term = section.getTerm();
-          dto_list.add(
-            new EnrollmentDTO(
-              e.getEnrollmentId(),
-              e.getGrade(),
-              user.getId(),
-              user.getName(),
-              user.getEmail(),
-              course.getCourseId(),
-              section.getSecId(),
-              section.getSectionNo(),
-              section.getBuilding(),
-              section.getRoom(),
-              section.getTimes(),
-              course.getCredits(),
-              term.getYear(),
-              term.getSemester()
-            )
-          );
-        }
-        return dto_list;
+        List<Enrollment> enrollments =
+          enrollmentRepository.findByYearAndSemesterOrderByCourseId(year, semester, studentId);
+
+        return getEnrollmentDTOS(user, enrollments);
     }
 
 
@@ -125,16 +82,16 @@ public class StudentController {
 
         User user = userRepository.findById(studentId).orElse(null);
         // Verify user exists and is a student
-        studentExists(user);
+        validateStudent(user);
 
         Enrollment e = new Enrollment();
         e.setUser(user);
 
-        Section section = sectionRepository.findById(sectionNo).orElse(null);
         // check that the Section entity with primary key sectionNo exists
-        if (section == null) {
-          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Section not found.");
-        }
+        Section section = sectionRepository.findById(sectionNo)
+          .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Section not found"));
+
         e.setSection(section);
 
         // check that today is between addDate and addDeadline for the section
@@ -162,24 +119,35 @@ public class StudentController {
         // be NULL until instructor enters final grades for the course.
         enrollmentRepository.save(e);
 
-        return new EnrollmentDTO(e.getEnrollmentId(), e.getGrade(), user.getId(),
-          user.getName(), user.getEmail(), course.getCourseId(), section.getSecId(),
-          section.getSectionNo(), section.getBuilding(), section.getRoom(), section.getTimes(),
-          course.getCredits(), term.getYear(), term.getSemester());
+        return new EnrollmentDTO(
+          e.getEnrollmentId(),
+          e.getGrade(),
+          user.getId(),
+          user.getName(),
+          user.getEmail(),
+          course.getCourseId(),
+          section.getSecId(),
+          section.getSectionNo(),
+          section.getBuilding(),
+          section.getRoom(),
+          section.getTimes(),
+          course.getCredits(),
+          term.getYear(),
+          term.getSemester()
+        );
     }
 
     // student drops a course
     // user must be student
     @DeleteMapping("/enrollments/{enrollmentId}")
     public void dropCourse(
-     @PathVariable("enrollmentId") int enrollmentId,
-     @RequestBody UserDTO userDTO) {
+      @PathVariable("enrollmentId") int enrollmentId,
+      @RequestParam("studentId") int studentId
+      ) {
 
-        User user = new User();
-        user.setId(userDTO.id());
-        user.setType(userDTO.type());
+        User user = userRepository.findById(studentId).orElse(null);
         // Verify user exists and is a student
-        studentExists(user);
+        validateStudent(user);
 
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElse(null);
         if (enrollment == null) {
@@ -192,14 +160,15 @@ public class StudentController {
 
         // check that today is not after the dropDeadline for section
         if (today.before(term.getDropDeadline())) {
-         enrollmentRepository.delete(enrollment);
+          enrollmentRepository.delete(enrollment);
         } else {
-         throw new ResponseStatusException(HttpStatus.CONFLICT, "Course " + enrollmentId +
-           " cannot be dropped after the Drop Deadline.");
+          throw new ResponseStatusException(
+            HttpStatus.CONFLICT,
+              "Course " + enrollmentId + " cannot be dropped after the Drop Deadline.");
         }
     }
 
-    private void studentExists(User user) {
+    private void validateStudent(User user) {
         // Verify user exists and is a student
         if (user == null) {
          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
@@ -209,4 +178,32 @@ public class StudentController {
            "User is not a student.");
         }
     }
+
+  private List<EnrollmentDTO> getEnrollmentDTOS(User user, List<Enrollment> enrollments) {
+    List<EnrollmentDTO> dto_list = new ArrayList<>();
+    for (Enrollment e : enrollments) {
+      Section section = e.getSection();
+      Course course = section.getCourse();
+      Term term = section.getTerm();
+      dto_list.add(
+        new EnrollmentDTO(
+          e.getEnrollmentId(),
+          e.getGrade(),
+          user.getId(),
+          user.getName(),
+          user.getEmail(),
+          course.getCourseId(),
+          section.getSecId(),
+          section.getSectionNo(),
+          section.getBuilding(),
+          section.getRoom(),
+          section.getTimes(),
+          course.getCredits(),
+          term.getYear(),
+          term.getSemester()
+        )
+      );
+    }
+    return dto_list;
+  }
 }

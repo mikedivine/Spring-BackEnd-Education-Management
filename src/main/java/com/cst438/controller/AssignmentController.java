@@ -47,7 +47,7 @@ public class AssignmentController {
       ) {
         Section s = sectionRepository.findBySectionNo(secNo);
         // Verify user exists and is an instructor and is the correct instructor
-        instructorExists(instructorEmail, s.getInstructorEmail());
+        verifyInstructor(instructorEmail, s.getInstructorEmail());
 
         // hint: use the assignment repository method
         //  findBySectionNoOrderByDueDate to return
@@ -80,7 +80,6 @@ public class AssignmentController {
       ) {
 
         Assignment a = new Assignment();
-        a.setAssignmentId(assignmentDTO.id());
         a.setTitle(assignmentDTO.title());
         a.setDue_date(Date.valueOf(assignmentDTO.dueDate()));
 
@@ -99,7 +98,7 @@ public class AssignmentController {
         a.setSection(s);
 
         // Verify user exists and is an instructor and is the correct instructor
-        instructorExists(instructorEmail, s.getInstructorEmail());
+        verifyInstructor(instructorEmail, s.getInstructorEmail());
 
         //save Assignment ID, Title, Duedate, and Section to Assignment Table.
         assignmentRepository.save(a);
@@ -131,7 +130,7 @@ public class AssignmentController {
         Section s = a.getSection();
 
         // Verify user exists and is an instructor and is the correct instructor
-        instructorExists(instructorEmail, s.getInstructorEmail());
+        verifyInstructor(instructorEmail, s.getInstructorEmail());
 
         a.setTitle(dto.title());
         a.setDue_date(Date.valueOf(dto.dueDate()));
@@ -161,8 +160,11 @@ public class AssignmentController {
         Section s = a.getSection();
 
         // Verify user exists and is an instructor and is the correct instructor
-        instructorExists(instructorEmail, s.getInstructorEmail());
-
+        verifyInstructor(instructorEmail, s.getInstructorEmail());
+        List<Grade> grades = gradeRepository.findByAssignmentId(assignmentId);
+        for (Grade g : grades) {
+          gradeRepository.delete(g);
+        }
         assignmentRepository.delete(a);
 
     }
@@ -183,7 +185,7 @@ public class AssignmentController {
         Section s = assignment.getSection();
 
         // Verify user exists and is an instructor and is the correct instructor
-        instructorExists(instructorEmail, s.getInstructorEmail());
+        verifyInstructor(instructorEmail, s.getInstructorEmail());
 
         // Gets all enrollments found under the sections related to the assignment id
         List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(
@@ -236,7 +238,7 @@ public class AssignmentController {
           Section s = e.getSection();
 
           // Verify user exists and is an instructor and is the correct instructor
-          instructorExists(instructorEmail, s.getInstructorEmail());
+          verifyInstructor(instructorEmail, s.getInstructorEmail());
           // Updates the score of the Grade in the DB
           grade.setScore(gradeDTO.score());
 
@@ -294,18 +296,7 @@ public class AssignmentController {
         //  hint: use the assignment repository method findByStudentIdAndYearAndSemesterOrderByDueDate
     }
 
-    private void studentExists(User user) {
-        // Verify user exists and is a student
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
-        }
-        if (!(user.getType().equals("STUDENT"))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "You are not a student.");
-        }
-    }
-
-    private void instructorExists(String email, String InstructorEmail) {
+    private void verifyInstructor(String email, String InstructorEmail) {
         // Verify user exists and is a student
         User user = userRepository.findByEmail(email);
         if (user == null) {
