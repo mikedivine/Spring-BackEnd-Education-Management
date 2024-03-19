@@ -46,6 +46,7 @@ public class SectionControllerUnitTest {
                 "052",
                 "104",
                 "W F 1:00-2:50 pm",
+                "Test Course",
                 "Joshua Gross",
                 "jgross@csumb.edu"
         );
@@ -107,6 +108,7 @@ public class SectionControllerUnitTest {
                 "052",
                 "104",
                 "W F 1:00-2:50 pm",
+                "Test Course 2",
                 "Joshua Gross",
                 "jgross@csumb.edu"
         );
@@ -138,7 +140,7 @@ public class SectionControllerUnitTest {
         }
     }
 
-    private static <T> T  fromJsonString(String str, Class<T> valueType ) {
+    private static <T> T fromJsonString(String str, Class<T> valueType ) {
         try {
             return new ObjectMapper().readValue(str, valueType);
         } catch (Exception e) {

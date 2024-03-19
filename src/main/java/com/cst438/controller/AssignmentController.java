@@ -63,6 +63,7 @@ public class AssignmentController {
                             a.getTitle(),
                             a.getDue_date().toString(),
                             course.getCourseId(),
+                            course.getTitle(),
                             section.getSecId(),
                             section.getSectionNo()
                     ));
@@ -105,12 +106,13 @@ public class AssignmentController {
 
         //return the information
         return new AssignmentDTO(
-                a.getAssignmentId(),
-                a.getTitle(),
-                assignmentDTO.dueDate(),
-                c.getCourseId(),
-                s.getSecId(),
-                s.getSectionNo()
+            a.getAssignmentId(),
+            a.getTitle(),
+            assignmentDTO.dueDate(),
+            c.getCourseId(),
+            c.getTitle(),
+            s.getSecId(),
+            s.getSectionNo()
         );
     }
 
@@ -128,7 +130,7 @@ public class AssignmentController {
           "Assignment not found"));
 
         Section s = a.getSection();
-
+        Course c = s.getCourse();
         // Verify user exists and is an instructor and is the correct instructor
         verifyInstructor(instructorEmail, s.getInstructorEmail());
 
@@ -136,12 +138,13 @@ public class AssignmentController {
         a.setDue_date(Date.valueOf(dto.dueDate()));
         assignmentRepository.save(a);
         return new AssignmentDTO(
-                a.getAssignmentId(),
-                a.getTitle(),
-                a.getDue_date().toString(),
-                null,
-                a.getSection().getSecId(),
-                a.getSection().getSectionNo()
+            a.getAssignmentId(),
+            a.getTitle(),
+            a.getDue_date().toString(),
+            c.getCourseId(),
+            c.getTitle(),
+            a.getSection().getSecId(),
+            a.getSection().getSectionNo()
         );
 
     }
@@ -228,7 +231,6 @@ public class AssignmentController {
       @RequestParam("instructorEmail") String instructorEmail
       ) {
 
-
         for (GradeDTO gradeDTO : dlist) {
           // Retrieve the Grade entity from the DB using the ID from the DTO provided
           Grade grade = gradeRepository.findById(gradeDTO.gradeId())
@@ -266,7 +268,7 @@ public class AssignmentController {
 
             //creates a list of AssignmentStudentDTO's based on the list of assignments above
             for(Assignment assignment : assignments){
-                String courseId = section.getCourse().getCourseId();
+                Course course = section.getCourse();
               Enrollment enrollment = enrollmentRepository.findEnrollmentBySectionNoAndStudentId(
                 section.getSectionNo(), studentId);
               Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(
@@ -282,7 +284,8 @@ public class AssignmentController {
                   assignment.getAssignmentId(),
                   assignment.getTitle(),
                   assignment.getDue_date(),
-                  courseId,
+                  course.getCourseId(),
+                  course.getTitle(),
                   assignment.getSection().getSecId(),
                   score
                 ));

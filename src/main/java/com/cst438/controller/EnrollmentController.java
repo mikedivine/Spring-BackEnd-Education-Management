@@ -63,7 +63,8 @@ public class EnrollmentController {
                 section.getTimes(),
                 course.getCredits(),
                 term.getYear(),
-                term.getSemester()
+                term.getSemester(),
+                course.getTitle()
               )
             );
         }
@@ -93,7 +94,7 @@ public class EnrollmentController {
     }
 
   private void validateInstructor(String email, String InstructorEmail) {
-    // Verify user exists and is a student
+    // Verify user exists and is an instructor
     User user = userRepository.findByEmail(email);
     if (user == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND,

@@ -58,4 +58,11 @@ public class Enrollment {
         this.section = section;
     }
 
+    public List<Grade> getGrades() {
+      return grades;
+    }
+
+    public void setGrades(List<Grade> grades) {
+      this.grades = grades;
+    }
 }

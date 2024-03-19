@@ -70,6 +70,7 @@ public class SectionController {
                 s.getBuilding(),
                 s.getRoom(),
                 s.getTimes(),
+                course.getTitle(),
                 (instructor!=null) ? instructor.getName() : "",
                 (instructor!=null) ? instructor.getEmail() : ""
         );
@@ -126,6 +127,7 @@ public class SectionController {
 
         List<SectionDTO> dto_list = new ArrayList<>();
         for (Section s : sections) {
+            Course course = s.getCourse();
             User instructor = null;
             if (s.getInstructorEmail()!=null) {
                 instructor = userRepository.findByEmail(s.getInstructorEmail());
@@ -139,6 +141,7 @@ public class SectionController {
                     s.getBuilding(),
                     s.getRoom(),
                     s.getTimes(),
+                    course.getTitle(),
                     (instructor!=null) ? instructor.getName() : "",
                     (instructor!=null) ? instructor.getEmail() : ""
             ));
@@ -160,6 +163,7 @@ public class SectionController {
 
         List<SectionDTO> dto_list = new ArrayList<>();
         for (Section s : sections) {
+            Course course = s.getCourse();
             User instructor = null;
             if (s.getInstructorEmail()!=null) {
                 instructor = userRepository.findByEmail(s.getInstructorEmail());
@@ -173,6 +177,7 @@ public class SectionController {
                     s.getBuilding(),
                     s.getRoom(),
                     s.getTimes(),
+                    course.getTitle(),
                     (instructor!=null) ? instructor.getName() : "",
                     (instructor!=null) ? instructor.getEmail() : ""
             ));
@@ -188,6 +193,7 @@ public class SectionController {
 
         List<SectionDTO> dlist = new ArrayList<>();
         for (Section s : sections) {
+            Course course = s.getCourse();
             User instructor = userRepository.findByEmail(s.getInstructorEmail());
             dlist.add( new SectionDTO(
                     s.getSectionNo(),
@@ -198,6 +204,7 @@ public class SectionController {
                     s.getBuilding(),
                     s.getRoom(),
                     s.getTimes(),
+                    course.getTitle(),
                     (instructor!=null) ? instructor.getName() : "",
                     (instructor!=null) ? instructor.getEmail() : ""
             ));
