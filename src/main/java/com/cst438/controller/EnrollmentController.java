@@ -37,13 +37,14 @@ public class EnrollmentController {
 
 		    //  hint: use enrollment repository findEnrollmentsBySectionNoOrderByStudentName method
         //  remove the following line when done
-        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
+        List<Enrollment> enrollments =
+          enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
         List<EnrollmentDTO> dto_list = new ArrayList<>();
         for (Enrollment e : enrollments) {
             User user = e.getUser();
             Section section = e.getSection();
 
-            instructorExists(instructorEmail, section.getInstructorEmail());
+            validateInstructor(instructorEmail, section.getInstructorEmail());
             Course course = section.getCourse();
             Term term = section.getTerm();
 
@@ -84,18 +85,19 @@ public class EnrollmentController {
             Enrollment enrollment = enrollmentRepository.findEnrollmentByEnrollmentId(e.enrollmentId());
             Section s = enrollment.getSection();
             // Verify user exists and is an instructor and is the correct instructor
-            instructorExists(instructorEmail, s.getInstructorEmail());
+            validateInstructor(instructorEmail, s.getInstructorEmail());
 
             enrollment.setGrade(e.grade());
             enrollmentRepository.save(enrollment);
         }
     }
 
-  private void instructorExists(String email, String InstructorEmail) {
+  private void validateInstructor(String email, String InstructorEmail) {
     // Verify user exists and is a student
     User user = userRepository.findByEmail(email);
     if (user == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "User not found.");
     }
     if (!(user.getType().equals("INSTRUCTOR"))) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
