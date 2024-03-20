@@ -46,6 +46,10 @@ public class AssignmentController {
       @RequestParam("instructorEmail") String instructorEmail
       ) {
         Section s = sectionRepository.findBySectionNo(secNo);
+        if (s == null) {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Section "
+              + secNo + " not found ");
+        }
         // Verify user exists and is an instructor and is the correct instructor
         verifyInstructor(instructorEmail, s.getInstructorEmail());
 
@@ -87,13 +91,12 @@ public class AssignmentController {
         //check if the course exists
         Course c = courseRepository.findById(assignmentDTO.courseId()).
           orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "course not found " + assignmentDTO.id()));
+              "Course not found " + assignmentDTO.id()));
 
         //check if the section exists
-        Section s = sectionRepository.findBySectionNo(assignmentDTO.secNo());
-        if (s==null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "section not found " + assignmentDTO.secId());
-        }
+        Section s = sectionRepository.findById(assignmentDTO.secNo()).
+          orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Section not " + assignmentDTO.secNo() + " found "));
 
         //link the assignment to the section
         a.setSection(s);
@@ -101,7 +104,17 @@ public class AssignmentController {
         // Verify user exists and is an instructor and is the correct instructor
         verifyInstructor(instructorEmail, s.getInstructorEmail());
 
-        //save Assignment ID, Title, Duedate, and Section to Assignment Table.
+        // check that the DueDate is after StartDate and before EndDate for the section
+        Term term = s.getTerm();
+        if (a.getDue_date().before(term.getStartDate())) {
+          throw new ResponseStatusException(HttpStatus.CONFLICT,
+            "You have attempted to add an assignment with a Due Date before the Section Start Date.");
+        } else if (a.getDue_date().after(term.getEndDate())) {
+          throw new ResponseStatusException(HttpStatus.CONFLICT,
+            "You have attempted to add an assignment with a Due Date after the Section End Date.");
+        }
+
+        //save Assignment ID, Title, DueDate, and Section to Assignment Table.
         assignmentRepository.save(a);
 
         //return the information
@@ -165,9 +178,7 @@ public class AssignmentController {
         // Verify user exists and is an instructor and is the correct instructor
         verifyInstructor(instructorEmail, s.getInstructorEmail());
         List<Grade> grades = gradeRepository.findByAssignmentId(assignmentId);
-        for (Grade g : grades) {
-          gradeRepository.delete(g);
-        }
+        gradeRepository.deleteAll(grades);
         assignmentRepository.delete(a);
 
     }
@@ -290,16 +301,11 @@ public class AssignmentController {
                   score
                 ));
             }
-
         }
-
         return assignmentDTO;
-        // return a list of assignments and (if they exist) the assignment grade
-        //  for all sections that the student is enrolled for the given year and semester
-        //  hint: use the assignment repository method findByStudentIdAndYearAndSemesterOrderByDueDate
     }
 
-    private void verifyInstructor(String email, String InstructorEmail) {
+    private void verifyInstructor(String email, String instructorEmail) {
         // Verify user exists and is a student
         User user = userRepository.findByEmail(email);
         if (user == null) {
@@ -309,7 +315,7 @@ public class AssignmentController {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
               "You are not an Instructor.");
         }
-        if (!(email.equals(InstructorEmail))) {
+        if (!(email.equals(instructorEmail))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
               "You are not the Instructor of the Section.");
         }

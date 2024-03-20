@@ -35,10 +35,14 @@ public class EnrollmentController {
       @RequestParam("instructorEmail") String instructorEmail
       ) {
 
-		    //  hint: use enrollment repository findEnrollmentsBySectionNoOrderByStudentName method
-        //  remove the following line when done
         List<Enrollment> enrollments =
           enrollmentRepository.findEnrollmentsBySectionNoOrderByStudentName(sectionNo);
+
+        if (enrollments == null) {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "No enrollments found.");
+        }
+
         List<EnrollmentDTO> dto_list = new ArrayList<>();
         for (Enrollment e : enrollments) {
             User user = e.getUser();
@@ -84,6 +88,12 @@ public class EnrollmentController {
         //  update the grade and save back to database
         for (EnrollmentDTO e : dlist) {
             Enrollment enrollment = enrollmentRepository.findEnrollmentByEnrollmentId(e.enrollmentId());
+
+            if (enrollment == null) {
+              throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Enrollment Not found.");
+            }
+
             Section s = enrollment.getSection();
             // Verify user exists and is an instructor and is the correct instructor
             validateInstructor(instructorEmail, s.getInstructorEmail());

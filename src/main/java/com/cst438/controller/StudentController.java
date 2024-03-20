@@ -39,7 +39,7 @@ public class StudentController {
 
     // student gets transcript showing list of all enrollments
     // studentId will be temporary until Login security is implemented
-    //example URL  /transcript?studentId=19803
+    //  example URL  /transcript?studentId=19803
     @GetMapping("/transcripts")
     public List<EnrollmentDTO> getTranscript(
       @RequestParam("studentId") int studentId) {
