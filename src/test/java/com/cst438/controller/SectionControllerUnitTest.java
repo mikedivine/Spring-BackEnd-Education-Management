@@ -108,7 +108,7 @@ public class SectionControllerUnitTest {
                 "052",
                 "104",
                 "W F 1:00-2:50 pm",
-                "Test Course 2",
+            "Test Course",
                 "Joshua Gross",
                 "jgross@csumb.edu"
         );
