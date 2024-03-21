@@ -33,7 +33,7 @@ public class SectionController {
 
         Course course = courseRepository.findById(section.courseId()).orElse(null);
         if (course == null ){
-            throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "course not found "+section.courseId());
+            throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "course not found " + section.courseId());
         }
         Section s = new Section();
         s.setCourse(course);
