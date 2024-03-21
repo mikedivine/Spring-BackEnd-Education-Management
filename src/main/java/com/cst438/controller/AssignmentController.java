@@ -114,10 +114,10 @@ public class AssignmentController {
         Term term = s.getTerm();
         if (a.getDue_date().before(term.getStartDate())) {
           throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "You have attempted to add an assignment with a Due Date before the Section Start Date.");
+            "You have attempted to add an assignment with the Due Date: " + a.getDue_date() + " before the Section Start Date " + term.getStartDate());
         } else if (a.getDue_date().after(term.getEndDate())) {
           throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "You have attempted to add an assignment with a Due Date after the Section End Date.");
+            "You have attempted to add an assignment with the Due Date: " + a.getDue_date() + " after the Section End Date: " + term.getEndDate());
         }
 
         //save Assignment ID, Title, DueDate, and Section to Assignment Table.
