@@ -102,7 +102,7 @@ public class AssignmentController {
         //check if the section exists
         Section s = sectionRepository.findById(assignmentDTO.secNo()).
           orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Section not " + assignmentDTO.secNo() + " found "));
+            "Section " + assignmentDTO.secNo() + " not found."));
 
         //link the assignment to the section
         a.setSection(s);

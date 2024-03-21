@@ -128,6 +128,45 @@ public class AssignmentControllerUnitTest {
     // check the expected error message
     String message = response.getErrorMessage();
     assertEquals("You have attempted to add an assignment with the Due Date: 2025-03-03 after the Section End Date: 2024-05-17", message);
+  }
 
+  // instructor adds a new assignment with invalid section number.
+  @Test
+  public void addNewAssignmentBadSectionNumber() throws Exception {
+
+    MockHttpServletResponse response;
+
+    // create DTO with data for new assignment.
+    // the primary key, id, is set to 0. it will be
+    // set by the database when the section is inserted.
+    AssignmentDTO assignment = new AssignmentDTO(
+      0,
+      "Test Assignment",
+      "2024-03-03",
+      "cst363",
+      "The Good Stuff",
+      1,
+      11
+    );
+
+    // issue an http POST request to SpringTestServer
+    // specify MediaType for request and response data
+    // convert Assignment to String data and set as request content
+    response = mvc.perform(
+        MockMvcRequestBuilders
+          .post("/assignments")
+          .param("instructorEmail", "dwisneski@csumb.edu")
+          .accept(MediaType.APPLICATION_JSON)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(asJsonString(assignment)))
+      .andReturn()
+      .getResponse();
+
+    // response should be 404, NOT_FOUND
+    assertEquals(404, response.getStatus());
+
+    // check the expected error message
+    String message = response.getErrorMessage();
+    assertEquals("Section 11 not found.", message);
   }
 }
