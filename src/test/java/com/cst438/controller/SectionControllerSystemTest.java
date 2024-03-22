@@ -95,8 +95,8 @@ public class SectionControllerSystemTest {
                 Thread.sleep(SLEEP_DURATION);
                 // find the YES to confirm button
                 List<WebElement> confirmButtons = driver
-                        .findElement(By.className("react-confirm-alert-button-group"))
-                        .findElements(By.tagName("button"));
+                  .findElement(By.className("react-confirm-alert-button-group"))
+                  .findElements(By.tagName("button"));
                 assertEquals(2, confirmButtons.size());
                 confirmButtons.get(0).click();
                 Thread.sleep(SLEEP_DURATION);
