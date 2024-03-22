@@ -34,9 +34,12 @@ public class StudentController {
     @Autowired
     CourseRepository courseRepository;
 
+    @Autowired
+    GradeRepository gradeRepository;
+
     // student gets transcript showing list of all enrollments
     // studentId will be temporary until Login security is implemented
-    //example URL  /transcript?studentId=19803
+    //  example URL  /transcript?studentId=19803
     @GetMapping("/transcripts")
     public List<EnrollmentDTO> getTranscript(
       @RequestParam("studentId") int studentId) {
@@ -133,7 +136,8 @@ public class StudentController {
           section.getTimes(),
           course.getCredits(),
           term.getYear(),
-          term.getSemester()
+          term.getSemester(),
+          course.getTitle()
         );
     }
 
@@ -154,12 +158,16 @@ public class StudentController {
          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment ID not found.");
         }
 
+        List<Grade> grades = enrollment.getGrades();
         Section section = enrollment.getSection();
         Term term = section.getTerm();
         Date today = new Date();
 
         // check that today is not after the dropDeadline for section
         if (today.before(term.getDropDeadline())) {
+          for (Grade g: grades) {
+            gradeRepository.delete(g);
+          }
           enrollmentRepository.delete(enrollment);
         } else {
           throw new ResponseStatusException(
@@ -200,7 +208,8 @@ public class StudentController {
           section.getTimes(),
           course.getCredits(),
           term.getYear(),
-          term.getSemester()
+          term.getSemester(),
+          course.getTitle()
         )
       );
     }
