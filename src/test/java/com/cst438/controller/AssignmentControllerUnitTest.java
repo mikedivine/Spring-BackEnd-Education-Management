@@ -23,6 +23,7 @@ import java.util.List;
 
 import static com.cst438.test.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -63,8 +64,8 @@ public class AssignmentControllerUnitTest {
         MockMvcRequestBuilders
           .post("/assignments")
           .param("instructorEmail", "dwisneski@csumb.edu")
-          .accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON)
+          .accept(APPLICATION_JSON)
+          .contentType(APPLICATION_JSON)
           .content(asJsonString(assignment)))
       .andReturn()
       .getResponse();
@@ -125,8 +126,8 @@ public class AssignmentControllerUnitTest {
         MockMvcRequestBuilders
           .post("/assignments")
           .param("instructorEmail", "dwisneski@csumb.edu")
-          .accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON)
+          .accept(APPLICATION_JSON)
+          .contentType(APPLICATION_JSON)
           .content(asJsonString(assignment)))
       .andReturn()
       .getResponse();
@@ -165,8 +166,8 @@ public class AssignmentControllerUnitTest {
         MockMvcRequestBuilders
           .post("/assignments")
           .param("instructorEmail", "dwisneski@csumb.edu")
-          .accept(MediaType.APPLICATION_JSON)
-          .contentType(MediaType.APPLICATION_JSON)
+          .accept(APPLICATION_JSON)
+          .contentType(APPLICATION_JSON)
           .content(asJsonString(assignment)))
       .andReturn()
       .getResponse();
