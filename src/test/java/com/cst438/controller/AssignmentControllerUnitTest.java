@@ -4,6 +4,9 @@ import com.cst438.domain.Assignment;
 import com.cst438.domain.AssignmentRepository;
 import com.cst438.domain.Section;
 import com.cst438.dto.AssignmentDTO;
+import com.cst438.domain.Grade;
+import com.cst438.domain.GradeRepository;
+import com.cst438.dto.GradeDTO;
 import com.cst438.dto.SectionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.cst438.test.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,6 +33,9 @@ public class AssignmentControllerUnitTest {
 
   @Autowired
   AssignmentRepository assignmentRepository;
+
+  @Autowired
+  GradeRepository gradeRepository;
 
   // instructor adds a new assignment
   @Test
@@ -168,5 +177,59 @@ public class AssignmentControllerUnitTest {
     // check the expected error message
     String message = response.getErrorMessage();
     assertEquals("Section 11 not found.", message);
+  }
+
+  //instructor grades an assignment and enters scores for all enrolled students and uploads the scores
+  @Test
+  public void gradeAssignmentEnterScoresForEnrolledStudents() throws Exception {
+
+    MockHttpServletResponse response;
+
+    // create DTO with data for new assignment.
+    // the primary key, id, is set to 0. it will be
+    // set by the database when the section is inserted.
+    List<GradeDTO> gradeList = new ArrayList<>();
+    GradeDTO grade = new GradeDTO(
+            1,
+            "Test Name",
+            "test@email.com",
+            "Test Assignment",
+            "cst363",
+            8,
+            89
+    );
+
+    gradeList.add(grade);
+
+    // issue an http POST request to SpringTestServer
+    // specify MediaType for request and response data
+    // convert Grade to String data and set as request content
+    response = mvc.perform(
+                    MockMvcRequestBuilders
+                            .put("/grades")
+                            .param("instructorEmail", "dwisneski@csumb.edu")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(gradeList)))
+            .andReturn()
+            .getResponse();
+
+    // check the response code for 200 meaning OK
+    assertEquals(200, response.getStatus());
+
+    // check if the grade was updated in the DB from 95 to 89
+    Grade updatedGradeFromDB = gradeRepository.findById(grade.gradeId()).orElse(null);
+    assertNotNull(updatedGradeFromDB);
+    assertEquals(89,updatedGradeFromDB.getScore());
+
+    //check if the assignmentTitle is the same and has not changed.
+    assertEquals("db homework 1",updatedGradeFromDB.getAssignment().getTitle());
+
+    // clean up after test. Set the grade back to the original grade.
+    updatedGradeFromDB.setScore(95);
+    gradeRepository.save(updatedGradeFromDB);
+    Grade resetGrade = gradeRepository.findById(grade.gradeId()).orElse(null);
+    assertEquals(95,resetGrade.getScore());
+
   }
 }

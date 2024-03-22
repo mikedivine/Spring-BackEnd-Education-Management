@@ -251,11 +251,12 @@ public class AssignmentController {
 
     /****************************
      UPLOAD GRADES FOR ASSIGNMENT
-     ****************************/
+     ***************************
+     * @return*/
     // instructor uploads grades for assignment
     // user must be instructor for the section
     @PutMapping("/grades")
-    public void updateGrades(
+    public List<GradeDTO> updateGrades(
       @RequestBody List<GradeDTO> dlist,
       @RequestParam("instructorEmail") String instructorEmail
       ) {
@@ -276,6 +277,7 @@ public class AssignmentController {
           // Saves the updated Grade in the DB
           gradeRepository.save(grade);
         }
+        return dlist;
 
     }
 
