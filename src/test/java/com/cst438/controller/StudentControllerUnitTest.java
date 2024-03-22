@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -65,6 +66,23 @@ public class StudentControllerUnitTest {
         //check database for delete
         e = enrollmentRepository.findById(result.enrollmentId()).orElse(null);
         assertNull(e);
+    }
+
+    //#7 student attempts to enroll in section but fails because student is already enrolled
+    @Test
+    public void alreadyEnrolled() throws Exception {
+        MockHttpServletResponse response;
+
+        //studentId=3, enrolls in section 8
+        response = mvc.perform(
+                MockMvcRequestBuilders
+                        .post("/enrollments/sections/8?studentId=3")
+        ).andReturn().getResponse();
+
+
+        assertEquals(409, response.getStatus());
+        assertEquals("You have attempted to add a course the student is already enrolled in.", response.getErrorMessage());
+
     }
 
 }
