@@ -1,0 +1,70 @@
+package com.cst438.controller;
+
+import com.cst438.domain.Enrollment;
+import com.cst438.domain.EnrollmentRepository;
+import com.cst438.domain.Section;
+import com.cst438.domain.SectionRepository;
+import com.cst438.dto.EnrollmentDTO;
+import com.cst438.dto.SectionDTO;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import static com.cst438.test.utils.TestUtils.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@AutoConfigureMockMvc
+@SpringBootTest
+
+public class StudentControllerUnitTest {
+    @Autowired
+    MockMvc mvc;
+
+    @Autowired
+    EnrollmentRepository enrollmentRepository;
+
+
+//    student enrolls into a section
+    @Test
+    public void enrollSection() throws Exception {
+        MockHttpServletResponse response;
+
+        //enroll in section 6
+        response = mvc.perform(
+                MockMvcRequestBuilders
+                        .post("/enrollments/sections/6?studentId=3")
+        ).andReturn().getResponse();
+
+        assertEquals(200, response.getStatus());
+
+        EnrollmentDTO result = fromJsonString(response.getContentAsString(), EnrollmentDTO.class);
+
+        //check successful add
+        assertEquals(6, result.sectionNo());
+
+        //check database
+        Enrollment e = enrollmentRepository.findById(result.enrollmentId()).orElse(null);
+        assertNotNull(e);
+        assertEquals(3, e.getUser().getId());
+
+        //cleanup after test, delete enrollment
+        response = mvc.perform(
+                        MockMvcRequestBuilders
+                                .delete("/enrollments/"+result.enrollmentId()+"?studentId=3")
+        ).andReturn().getResponse();
+
+        assertEquals(200, response.getStatus());
+
+        //check database for delete
+        e = enrollmentRepository.findById(result.enrollmentId()).orElse(null);
+        assertNull(e);
+    }
+
+}
