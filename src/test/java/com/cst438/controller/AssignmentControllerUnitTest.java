@@ -186,7 +186,7 @@ public class AssignmentControllerUnitTest {
 
     MockHttpServletResponse response;
 
-    // create DTO with data for new assignment.
+    // create DTO with data for a.
     // the primary key, id, is set to 0. it will be
     // set by the database when the section is inserted.
     List<GradeDTO> gradeList = new ArrayList<>();
@@ -223,7 +223,7 @@ public class AssignmentControllerUnitTest {
     assertNotNull(updatedGradeFromDB);
     assertEquals(89,updatedGradeFromDB.getScore());
 
-    //check if the assignmentTitle is the same and has not changed.
+    // check if the assignmentTitle is the same and has not changed.
     assertEquals("db homework 1",updatedGradeFromDB.getAssignment().getTitle());
 
     // clean up after test. Set the grade back to the original grade.
@@ -231,6 +231,32 @@ public class AssignmentControllerUnitTest {
     gradeRepository.save(updatedGradeFromDB);
     Grade resetGrade = gradeRepository.findById(grade.gradeId()).orElse(null);
     assertEquals(95,resetGrade.getScore());
+  }
 
+  // instructor attempts to grade an assignment
+  //  but the assignment id is invalid
+  @Test
+  public void gradeAssignmentBadAssignmentId() throws Exception {
+
+    MockHttpServletResponse response;
+
+    // issue an http GET request to the SpringTestServer
+    //  specifying assignmentId as -17 which doesn't exist
+    response = mvc.perform(
+        MockMvcRequestBuilders
+          .get("/assignments/-17/grades")
+          .param("instructorEmail", "dwisneski@csumb.edu")
+          .accept(APPLICATION_JSON)
+          .contentType(APPLICATION_JSON)
+          .content(asJsonString("")))
+      .andReturn()
+      .getResponse();
+
+    // response should be 404, NOT_FOUND
+    assertEquals(404, response.getStatus());
+
+    // check the expected error message
+    String message = response.getErrorMessage();
+    assertEquals("Assignment -17 not found", message);
   }
 }

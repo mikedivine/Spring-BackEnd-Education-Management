@@ -3,6 +3,7 @@ package com.cst438.controller;
 import com.cst438.domain.*;
 import com.cst438.dto.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -209,7 +210,7 @@ public class AssignmentController {
       // Finds the assignment by ID to get its related sectionNo
         Assignment assignment = assignmentRepository.findById(assignmentId)
           .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Assignment not found"));
+            "Assignment " + assignmentId + " not found"));
 
         Section s = assignment.getSection();
 
@@ -251,10 +252,10 @@ public class AssignmentController {
 
     /****************************
      UPLOAD GRADES FOR ASSIGNMENT
-     ***************************
-     * @return*/
+     ****************************/
     // instructor uploads grades for assignment
     // user must be instructor for the section
+    @Transactional
     @PutMapping("/grades")
     public List<GradeDTO> updateGrades(
       @RequestBody List<GradeDTO> dlist,
@@ -271,7 +272,8 @@ public class AssignmentController {
 
           // Verify user exists and is an instructor and is the correct instructor
           verifyInstructor(instructorEmail, s.getInstructorEmail());
-          // Updates the score of the Grade in the DB
+
+          // Updates the score of the Grade
           grade.setScore(gradeDTO.score());
 
           // Saves the updated Grade in the DB
