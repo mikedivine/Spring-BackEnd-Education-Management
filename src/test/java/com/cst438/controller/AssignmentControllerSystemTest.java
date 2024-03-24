@@ -117,10 +117,15 @@ public class AssignmentControllerSystemTest {
     Thread.sleep(SLEEP_DURATION);
     List<WebElement> weList = driver.findElements(By.xpath("//a[contains(text(), 'Grade')]"));
     weList.get(0).click();
+    Thread.sleep(SLEEP_DURATION);
     WebElement input = driver.findElement(By.tagName("input"));
     input.sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.DELETE));
     input.sendKeys("50");
     driver.findElement(By.tagName("button")).click();
+    WebElement messageElement = driver.findElement(By.tagName("h4"));
+
+    //check save grades was successful
+    assertEquals("Grades saved", messageElement.getText());
 
     //give grade to all enrollments
     driver.findElement(By.tagName("a")).click();
@@ -129,13 +134,20 @@ public class AssignmentControllerSystemTest {
     driver.findElement(By.id("showSections")).click();
     weList = driver.findElements(By.xpath("//a[contains(text(), 'View Enrollments')]"));
     weList.get(0).click();
+    Thread.sleep(SLEEP_DURATION);
     weList = driver.findElements(By.tagName("input"));
     for (WebElement inputElement : weList) {
       inputElement.sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.DELETE));
       inputElement.sendKeys("F");
     }
     driver.findElement(By.tagName("button")).click();
+    messageElement = driver.findElement(By.tagName("h4"));
 
+    //check save enrollments grades was successful
+    assertEquals("Enrollment Saved", messageElement.getText());
+
+
+    Thread.sleep(SLEEP_DURATION);
   }
 
 }
