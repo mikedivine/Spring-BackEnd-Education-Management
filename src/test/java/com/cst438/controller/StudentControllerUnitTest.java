@@ -101,4 +101,18 @@ public class StudentControllerUnitTest {
 
     }
 
+    @Test
+    public void pastDeadline() throws Exception {
+        MockHttpServletResponse response;
+
+        //studentId=3, sectionNo=1, sectionNo 1 add deadline == 2023-08-30
+        response = mvc.perform(
+                MockMvcRequestBuilders
+                        .post("/enrollments/sections/1?studentId=3")
+        ).andReturn().getResponse();
+
+        assertEquals(409, response.getStatus());
+        assertEquals("You have attempted to add a course after the Add Deadline.", response.getErrorMessage());
+    }
+
 }
