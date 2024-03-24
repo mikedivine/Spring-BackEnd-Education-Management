@@ -7,6 +7,7 @@ import com.cst438.domain.SectionRepository;
 import com.cst438.dto.EnrollmentDTO;
 import com.cst438.dto.SectionDTO;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -82,6 +83,21 @@ public class StudentControllerUnitTest {
 
         assertEquals(409, response.getStatus());
         assertEquals("You have attempted to add a course the student is already enrolled in.", response.getErrorMessage());
+
+    }
+
+    @Test
+    public void invalidSection() throws Exception {
+        MockHttpServletResponse response;
+
+        //studentId=3, input sectionNo=999999
+        response = mvc.perform(
+                MockMvcRequestBuilders
+                        .post("/enrollments/sections/999999?studentId=3")
+        ).andReturn().getResponse();
+
+        assertEquals(404, response.getStatus());
+        assertEquals("Section not found", response.getErrorMessage());
 
     }
 
