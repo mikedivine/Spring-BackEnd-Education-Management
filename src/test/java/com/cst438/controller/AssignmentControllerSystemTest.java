@@ -125,6 +125,8 @@ public class AssignmentControllerSystemTest {
     WebElement messageElement = driver.findElement(By.tagName("h4"));
 
     //check save grades was successful
+    WebElement gradeBox = driver.findElement(By.tagName("input"));
+    assertEquals("50", gradeBox.getAttribute("value"));
     assertEquals("Grades saved", messageElement.getText());
 
     //give grade to all enrollments
@@ -139,6 +141,7 @@ public class AssignmentControllerSystemTest {
     for (WebElement inputElement : weList) {
       inputElement.sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.DELETE));
       inputElement.sendKeys("F");
+      assertEquals("F", inputElement.getAttribute("value"));
     }
     driver.findElement(By.tagName("button")).click();
     messageElement = driver.findElement(By.tagName("h4"));
