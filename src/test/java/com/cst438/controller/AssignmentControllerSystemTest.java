@@ -102,4 +102,40 @@ public class AssignmentControllerSystemTest {
     assertThrows(NoSuchElementException.class, () ->
       driver.findElement(By.xpath("//tr[td='Test Assignment']")));
   }
+
+  //instructor grades an assignment and enters scores for all enrolled students and uploads scores
+  @Test
+  public void enterScores() throws Exception {
+    //Spring2024 cst363 sectionNo=8
+
+    //grade an assignment
+    driver.findElement(By.id("year")).sendKeys("2024");
+    driver.findElement(By.id("semester")).sendKeys("Spring");
+    driver.findElement(By.id("showSections")).click();
+    Thread.sleep(SLEEP_DURATION);
+    driver.findElement(By.xpath("//tr[1]/td[8]/a")).click();
+    Thread.sleep(SLEEP_DURATION);
+    List<WebElement> weList = driver.findElements(By.xpath("//a[contains(text(), 'Grade')]"));
+    weList.get(0).click();
+    WebElement input = driver.findElement(By.tagName("input"));
+    input.sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.DELETE));
+    input.sendKeys("50");
+    driver.findElement(By.tagName("button")).click();
+
+    //give grade to all enrollments
+    driver.findElement(By.tagName("a")).click();
+    driver.findElement(By.id("year")).sendKeys("2024");
+    driver.findElement(By.id("semester")).sendKeys("Spring");
+    driver.findElement(By.id("showSections")).click();
+    weList = driver.findElements(By.xpath("//a[contains(text(), 'View Enrollments')]"));
+    weList.get(0).click();
+    weList = driver.findElements(By.tagName("input"));
+    for (WebElement inputElement : weList) {
+      inputElement.sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.DELETE));
+      inputElement.sendKeys("F");
+    }
+    driver.findElement(By.tagName("button")).click();
+
+  }
+
 }
