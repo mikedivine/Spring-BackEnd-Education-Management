@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AssignmentControllerSystemTest {
 
   public static final String CHROME_DRIVER_FILE_LOCATION =
-    "C:/chromedriver_win64/chromedriver.exe";
+    "/Users/russsell/Documents/School/1 - CSUMB/CST 438 Software Engineering/chromedriver-mac-x64/chromedriver";
 
   public static final String URL = "http://localhost:3000";
 
@@ -113,13 +113,14 @@ public class AssignmentControllerSystemTest {
     driver.findElement(By.id("semester")).sendKeys("Spring");
     driver.findElement(By.id("showSections")).click();
     Thread.sleep(SLEEP_DURATION);
+    Thread.sleep(SLEEP_DURATION);
     driver.findElement(By.xpath("//tr[1]/td[8]/a")).click();
     Thread.sleep(SLEEP_DURATION);
     List<WebElement> weList = driver.findElements(By.xpath("//a[contains(text(), 'Grade')]"));
     weList.get(0).click();
     Thread.sleep(SLEEP_DURATION);
     WebElement input = driver.findElement(By.tagName("input"));
-    input.sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.DELETE));
+    input.sendKeys(Keys.chord(Keys.COMMAND,"a",Keys.DELETE));
     input.sendKeys("50");
     driver.findElement(By.tagName("button")).click();
     WebElement messageElement = driver.findElement(By.tagName("h4"));
@@ -129,28 +130,38 @@ public class AssignmentControllerSystemTest {
     assertEquals("50", gradeBox.getAttribute("value"));
     assertEquals("Grades saved", messageElement.getText());
 
+
+
+    Thread.sleep(SLEEP_DURATION);
+  }
+
+  //instructor enters final grades for all  enrolled students
+  @Test
+  public void enterFinalGradesForAllStudents() throws Exception{
+    //Year: 2024
+    //Semester: Spring
+
     //give grade to all enrollments
     driver.findElement(By.tagName("a")).click();
     driver.findElement(By.id("year")).sendKeys("2024");
     driver.findElement(By.id("semester")).sendKeys("Spring");
     driver.findElement(By.id("showSections")).click();
-    weList = driver.findElements(By.xpath("//a[contains(text(), 'View Enrollments')]"));
+    Thread.sleep(SLEEP_DURATION);
+    List<WebElement> weList = driver.findElements(By.xpath("//a[contains(text(), 'View Enrollments')]"));
     weList.get(0).click();
     Thread.sleep(SLEEP_DURATION);
     weList = driver.findElements(By.tagName("input"));
     for (WebElement inputElement : weList) {
-      inputElement.sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.DELETE));
+      inputElement.sendKeys(Keys.chord(Keys.COMMAND,"a",Keys.DELETE));
       inputElement.sendKeys("F");
       assertEquals("F", inputElement.getAttribute("value"));
     }
     driver.findElement(By.tagName("button")).click();
-    messageElement = driver.findElement(By.tagName("h4"));
+    Thread.sleep(SLEEP_DURATION);
+    WebElement messageElement = driver.findElement(By.tagName("h4"));
 
     //check save enrollments grades was successful
     assertEquals("Enrollment Saved", messageElement.getText());
-
-
-    Thread.sleep(SLEEP_DURATION);
   }
 
 }
