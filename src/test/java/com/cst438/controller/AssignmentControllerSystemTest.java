@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AssignmentControllerSystemTest {
 
+  //change this directory to where chromedriver.exe is saved on your computer
   public static final String CHROME_DRIVER_FILE_LOCATION =
     "/Users/russsell/Documents/School/1 - CSUMB/CST 438 Software Engineering/chromedriver-mac-x64/chromedriver";
 
@@ -120,6 +121,7 @@ public class AssignmentControllerSystemTest {
     weList.get(0).click();
     Thread.sleep(SLEEP_DURATION);
     WebElement input = driver.findElement(By.tagName("input"));
+    //change Keys.COMMAND to Keys.CONTROL if on Windows
     input.sendKeys(Keys.chord(Keys.COMMAND,"a",Keys.DELETE));
     input.sendKeys("50");
     driver.findElement(By.tagName("button")).click();
@@ -152,6 +154,7 @@ public class AssignmentControllerSystemTest {
     Thread.sleep(SLEEP_DURATION);
     weList = driver.findElements(By.tagName("input"));
     for (WebElement inputElement : weList) {
+      //change Keys.COMMAND to Keys.CONTROL if on Windows
       inputElement.sendKeys(Keys.chord(Keys.COMMAND,"a",Keys.DELETE));
       inputElement.sendKeys("F");
       assertEquals("F", inputElement.getAttribute("value"));
