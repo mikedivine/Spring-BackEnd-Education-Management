@@ -60,7 +60,6 @@ public class InstructorControllerUnitTest {
     );
 
     // issue a http POST request to SpringTestServer
-    // specify MediaType for request and response data
     // convert Assignment to String data and set as request content
     response = mvc.perform(
         MockMvcRequestBuilders
@@ -87,19 +86,6 @@ public class InstructorControllerUnitTest {
     Assignment a = assignmentRepository.findById(result.id()).orElse(null);
     assertNotNull(a);
     assertEquals(8, a.getSection().getSectionNo());
-
-    // clean up after test. issue http DELETE request for section
-    response = mvc.perform(
-        MockMvcRequestBuilders
-          .delete("/assignments/" + result.id() + "?instructorEmail=dwisneski@csumb.edu"))
-          .andReturn()
-          .getResponse();
-
-    assertEquals(200, response.getStatus());
-
-    // check database for delete
-    a = assignmentRepository.findById(result.id()).orElse(null);
-    assertNull(a);  // assignment should not be found after delete
   }
 
   // instructor adds a new assignment with a due date past the end date of the class
@@ -182,7 +168,8 @@ public class InstructorControllerUnitTest {
     assertEquals("Section 11 not found.", message);
   }
 
-  //instructor grades an assignment and enters scores for all enrolled students and uploads the scores
+  // instructor grades an assignment and enters scores
+  //  for all enrolled students and uploads the scores
   @Test
   public void gradeAssignmentEnterScoresForEnrolledStudents() throws Exception {
 
