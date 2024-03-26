@@ -1,14 +1,12 @@
 package com.cst438.controller;
 
-import com.cst438.domain.Assignment;
-import com.cst438.domain.AssignmentRepository;
-import com.cst438.domain.Section;
+import com.cst438.domain.*;
 import com.cst438.dto.AssignmentDTO;
-import com.cst438.domain.Grade;
-import com.cst438.domain.GradeRepository;
+import com.cst438.dto.EnrollmentDTO;
 import com.cst438.dto.GradeDTO;
-import com.cst438.dto.SectionDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.cst438.test.utils.TestUtils.*;
@@ -27,7 +26,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @AutoConfigureMockMvc
 @SpringBootTest
-public class AssignmentControllerUnitTest {
+public class InstructorControllerUnitTest {
 
   @Autowired
   MockMvc mvc;
@@ -37,6 +36,9 @@ public class AssignmentControllerUnitTest {
 
   @Autowired
   GradeRepository gradeRepository;
+
+  @Autowired
+  EnrollmentRepository enrollmentRepository;
 
   // instructor adds a new assignment
   @Test
@@ -202,15 +204,15 @@ public class AssignmentControllerUnitTest {
 
     gradeList.add(grade);
 
-    // issue an http POST request to SpringTestServer
+    // issue an http PUT request to SpringTestServer
     // specify MediaType for request and response data
     // convert Grade to String data and set as request content
     response = mvc.perform(
                     MockMvcRequestBuilders
                             .put("/grades")
                             .param("instructorEmail", "dwisneski@csumb.edu")
-                            .accept(MediaType.APPLICATION_JSON)
-                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(APPLICATION_JSON)
+                            .contentType(APPLICATION_JSON)
                             .content(asJsonString(gradeList)))
             .andReturn()
             .getResponse();
@@ -258,5 +260,105 @@ public class AssignmentControllerUnitTest {
     // check the expected error message
     String message = response.getErrorMessage();
     assertEquals("Assignment -17 not found", message);
+  }
+
+  // instructor enters final class grades
+  //  for all enrolled students
+  @Test
+  public void enterFinalGrades() throws Exception {
+
+    MockHttpServletResponse response;
+
+    // create EnrollmentDTO List with final grades.
+    List<EnrollmentDTO> enrollmentList = new ArrayList<>();
+    Collections.addAll(enrollmentList,
+      (new EnrollmentDTO(
+        4,
+        "A",
+        0,
+        null,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null)
+      ),
+      (new EnrollmentDTO(
+        5,
+        "B",
+        0,
+        null,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null)
+      ),
+      (new EnrollmentDTO(
+        2,
+        "C",
+        0,
+        null,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null,
+        null,
+        0,
+        0,
+        null,
+        null)
+      )
+    );
+
+    // issue an http PUT request to the SpringTestServer
+    response = mvc.perform(
+        MockMvcRequestBuilders
+          .put("/enrollments")
+          .param("instructorEmail", "dwisneski@csumb.edu")
+          .accept(APPLICATION_JSON)
+          .contentType(APPLICATION_JSON)
+          .content(asJsonString(enrollmentList)))
+      .andReturn()
+      .getResponse();
+
+    // check the response code for 200 meaning OK
+    assertEquals(200, response.getStatus());
+
+    // issue an http GET request to the SpringTestServer
+    //  to get all enrollments for Section Number 8
+    response = mvc.perform(
+        MockMvcRequestBuilders
+          .get("/sections/8/enrollments")
+          .param("instructorEmail", "dwisneski@csumb.edu")
+          .accept(APPLICATION_JSON)
+          .contentType(APPLICATION_JSON)
+          .content(asJsonString("")))
+      .andReturn()
+      .getResponse();
+
+    // verify correct grades
+    Gson gson = new Gson();
+    Type enrollmentListType = new TypeToken<List<EnrollmentDTO>>() {}.getType();
+    List<EnrollmentDTO> enrollmentDTOs = gson.fromJson(response.getContentAsString(), enrollmentListType);
+
+    // check that the grades show that they were updated
+    assertEquals("A", enrollmentDTOs.get(0).grade());
+    assertEquals("B", enrollmentDTOs.get(1).grade());
+    assertEquals("C", enrollmentDTOs.get(2).grade());
   }
 }

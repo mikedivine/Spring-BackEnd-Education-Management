@@ -33,7 +33,7 @@ public class StudentControllerUnitTest {
     EnrollmentRepository enrollmentRepository;
 
 
-//    student enrolls into a section
+    // student enrolls into a section
     @Test
     public void enrollSection() throws Exception {
         MockHttpServletResponse response;
@@ -69,7 +69,8 @@ public class StudentControllerUnitTest {
         assertNull(e);
     }
 
-    //#7 student attempts to enroll in section but fails because student is already enrolled
+    // #7 student attempts to enroll in section but fails
+    //  because student is already enrolled
     @Test
     public void alreadyEnrolled() throws Exception {
         MockHttpServletResponse response;
@@ -86,6 +87,8 @@ public class StudentControllerUnitTest {
 
     }
 
+    // student attempts to enroll in section but fails
+    //  because section does not exist
     @Test
     public void invalidSection() throws Exception {
         MockHttpServletResponse response;
@@ -101,6 +104,8 @@ public class StudentControllerUnitTest {
 
     }
 
+    // student attempts to enroll in section but fails
+    //  because deadline to enroll has passed
     @Test
     public void pastDeadline() throws Exception {
         MockHttpServletResponse response;
