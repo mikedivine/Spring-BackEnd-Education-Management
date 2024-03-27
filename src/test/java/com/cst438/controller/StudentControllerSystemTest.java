@@ -54,7 +54,7 @@ public class StudentControllerSystemTest {
     public void enrollInSection() throws Exception {
 
         driver.findElement(By.id("classEnroll")).click();
-
+        Thread.sleep(SLEEP_DURATION);
         // Find all rows in the table
         List<WebElement> rows = driver.findElements(By.xpath("//table[@class='Center']/tbody/tr"));
 

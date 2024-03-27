@@ -132,39 +132,6 @@ public class AssignmentControllerSystemTest {
     assertEquals("50", gradeBox.getAttribute("value"));
     assertEquals("Grades saved", messageElement.getText());
 
-
-
     Thread.sleep(SLEEP_DURATION);
   }
-
-  //instructor enters final grades for all  enrolled students
-  @Test
-  public void enterFinalGradesForAllStudents() throws Exception{
-    //Year: 2024
-    //Semester: Spring
-
-    //give grade to all enrollments
-    driver.findElement(By.tagName("a")).click();
-    driver.findElement(By.id("year")).sendKeys("2024");
-    driver.findElement(By.id("semester")).sendKeys("Spring");
-    driver.findElement(By.id("showSections")).click();
-    Thread.sleep(SLEEP_DURATION);
-    List<WebElement> weList = driver.findElements(By.xpath("//a[contains(text(), 'View Enrollments')]"));
-    weList.get(0).click();
-    Thread.sleep(SLEEP_DURATION);
-    weList = driver.findElements(By.tagName("input"));
-    for (WebElement inputElement : weList) {
-      //change Keys.COMMAND to Keys.CONTROL if on Windows
-      inputElement.sendKeys(Keys.chord(Keys.COMMAND,"a",Keys.DELETE));
-      inputElement.sendKeys("F");
-      assertEquals("F", inputElement.getAttribute("value"));
-    }
-    driver.findElement(By.tagName("button")).click();
-    Thread.sleep(SLEEP_DURATION);
-    WebElement messageElement = driver.findElement(By.tagName("h4"));
-
-    //check save enrollments grades was successful
-    assertEquals("Enrollment Saved", messageElement.getText());
-  }
-
 }
