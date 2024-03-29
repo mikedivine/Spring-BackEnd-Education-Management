@@ -40,7 +40,7 @@ public class AssignmentController {
     SectionRepository sectionRepository;
 
     /****************************
-     LIST ASSIGNMENTS
+        LIST ASSIGNMENTS
      ****************************/
     // instructor lists assignments for a section.  Assignments ordered by due date.
     // logged in user must be the instructor for the section
@@ -80,7 +80,7 @@ public class AssignmentController {
     }
 
     /****************************
-     ADD ASSIGNMENT
+        ADD ASSIGNMENT
      ****************************/
     // add assignment
     // user must be instructor of the section
@@ -137,7 +137,7 @@ public class AssignmentController {
     }
 
     /****************************
-     UPDATE ASSIGNMENT
+        UPDATE ASSIGNMENT
      ****************************/
     // update assignment for a section.  Only title and dueDate may be changed.
     // user must be instructor of the section
@@ -173,7 +173,7 @@ public class AssignmentController {
     }
 
     /****************************
-      DELETE ASSIGNMENT
+        DELETE ASSIGNMENT
      ****************************/
     // delete assignment for a section
     // logged in user must be instructor of the section
@@ -284,50 +284,52 @@ public class AssignmentController {
     }
 
     /****************************
-     STUDENT LISTS ASSIGNMENTS
+      STUDENT LISTS ASSIGNMENTS
      ****************************/
     // student lists their assignments/grades for an enrollment ordered by due date
     // student must be enrolled in the section
     @GetMapping("/assignments")
     public List<AssignmentStudentDTO> getStudentAssignments(
-            @RequestParam("studentId") int studentId,
-            @RequestParam("year") int year,
-            @RequestParam("semester") String semester) {
+      @RequestParam("studentId") int studentId,
+      @RequestParam("year") int year,
+      @RequestParam("semester") String semester) {
 
-        //creates a list of sections based on studentId, year, semester
+        // creates a list of sections based on studentId, year, semester
         List<Section> sections = sectionRepository.findByStudentIdAndYearAndSemester(studentId, year, semester);
-        List<AssignmentStudentDTO> assignmentDTO = new ArrayList<>();
+
+        List<AssignmentStudentDTO> assignmentDTOs = new ArrayList<>();
 
         //creates a list assignments for the sections above
-        for (Section section : sections){
+        for (Section section : sections) {
             List<Assignment> assignments = assignmentRepository.findBySectionNoOrderByDueDate(section.getSectionNo());
 
             //creates a list of AssignmentStudentDTO's based on the list of assignments above
-            for(Assignment assignment : assignments){
+            for(Assignment assignment : assignments) {
                 Course course = section.getCourse();
-              Enrollment enrollment = enrollmentRepository.findEnrollmentBySectionNoAndStudentId(
-                section.getSectionNo(), studentId);
-              Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(
-                enrollment.getEnrollmentId(), assignment.getAssignmentId());
-              Integer score = -1;
+                Enrollment enrollment = enrollmentRepository.findEnrollmentBySectionNoAndStudentId(
+                  section.getSectionNo(), studentId);
+                Grade grade = gradeRepository.findByEnrollmentIdAndAssignmentId(
+                  enrollment.getEnrollmentId(), assignment.getAssignmentId());
+                Integer score = null;
 
-              if (grade != null) {
-                score = grade.getScore();
-              }
+                if (grade != null) {
+                  score = grade.getScore();
+                }
 
-              assignmentDTO.add(
-                new AssignmentStudentDTO(
-                  assignment.getAssignmentId(),
-                  assignment.getTitle(),
-                  assignment.getDue_date(),
-                  course.getCourseId(),
-                  course.getTitle(),
-                  assignment.getSection().getSecId(),
-                  score
-                ));
+                assignmentDTOs.add(
+                  new AssignmentStudentDTO(
+                    assignment.getAssignmentId(),
+                    assignment.getTitle(),
+                    assignment.getDue_date(),
+                    course.getCourseId(),
+                    course.getTitle(),
+                    assignment.getSection().getSecId(),
+                    score
+                  )
+                );
             }
         }
-        return assignmentDTO;
+        return assignmentDTOs;
     }
 
     private void verifyInstructor(String email, String instructorEmail) {
