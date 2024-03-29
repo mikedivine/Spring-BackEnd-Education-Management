@@ -27,6 +27,9 @@ public class EnrollmentController {
     @Autowired
     CourseController courseController;
 
+      /****************************
+          GET ENROLLMENTS
+       ****************************/
     // instructor downloads student enrollments for a section, ordered by student name
     // user must be instructor for the section
     @GetMapping("/sections/{sectionNo}/enrollments")
@@ -75,6 +78,9 @@ public class EnrollmentController {
         return dto_list;
     }
 
+    /****************************
+        ENTER GRADES
+     ****************************/
     // instructor uploads enrollments with the final grades for the section
     // user must be instructor for the section
     @PutMapping("/enrollments")
