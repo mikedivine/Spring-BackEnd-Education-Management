@@ -26,15 +26,14 @@ public class CourseController {
     CourseRepository courseRepository;
 
     @Autowired
-    SectionRepository sectionRepository;
-
-    @Autowired
     TermRepository termRepository;
 
     @Autowired
     UserRepository userRepository;
 
-
+    /****************************
+        CREATE COURSE
+     ****************************/
     // ADMIN function to create a new course
     @PostMapping("/courses")
     public CourseDTO addCourse(@RequestBody CourseDTO course) {
@@ -50,6 +49,9 @@ public class CourseController {
         );
     }
 
+    /****************************
+        UPDATE COURSE
+     ****************************/
     // ADMIN function to update a course
     @PutMapping("/courses")
     public CourseDTO updateCourse(@RequestBody CourseDTO course) {
@@ -68,6 +70,9 @@ public class CourseController {
         }
     }
 
+    /****************************
+        DELETE COURSE
+     ****************************/
     // ADMIN function to delete a course
     // delete will fail if the course has sections
     @DeleteMapping("/courses/{courseid}")
@@ -79,6 +84,9 @@ public class CourseController {
         }
     }
 
+    /****************************
+        GET ALL COURSES
+     ****************************/
     @GetMapping("/courses")
     public List<CourseDTO> getAllCourses() {
         List<Course> courses = courseRepository.findAllByOrderByCourseIdAsc();
@@ -89,10 +97,12 @@ public class CourseController {
         return dto_list;
     }
 
+    /****************************
+        GET TERMS
+     ****************************/
     @GetMapping("/terms")
     public List<Term> getAllTerms() {
         return termRepository.findAllByOrderByTermIdDesc();
     }
-
 
 }
