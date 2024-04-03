@@ -332,6 +332,43 @@ public class AssignmentController {
         return assignmentDTOs;
     }
 
+    /****************************
+     GET INSTRUCTOR SECTIONS
+     ****************************/
+    // get Sections for an instructor
+    //  example URL  /sections?instructorEmail=dwisneski@csumb.edu&year=2024&semester=Spring
+    @GetMapping("/sections")
+    public List<SectionDTO> getSectionsForInstructor(
+      @RequestParam("email") String instructorEmail,
+      @RequestParam("year") int year ,
+      @RequestParam("semester") String semester )  {
+
+      List<Section> sections = sectionRepository.findByInstructorEmailAndYearAndSemester(instructorEmail, year, semester);
+
+      List<SectionDTO> dto_list = new ArrayList<>();
+      for (Section s : sections) {
+        Course course = s.getCourse();
+        User instructor = null;
+        if (s.getInstructorEmail()!=null) {
+          instructor = userRepository.findByEmail(s.getInstructorEmail());
+        }
+        dto_list.add(new SectionDTO(
+          s.getSectionNo(),
+          s.getTerm().getYear(),
+          s.getTerm().getSemester(),
+          s.getCourse().getCourseId(),
+          s.getSecId(),
+          s.getBuilding(),
+          s.getRoom(),
+          s.getTimes(),
+          course.getTitle(),
+          (instructor!=null) ? instructor.getName() : "",
+          (instructor!=null) ? instructor.getEmail() : ""
+        ));
+      }
+      return dto_list;
+    }
+
     private void verifyInstructor(String email, String instructorEmail) {
         // Verify user exists and is a student
         User user = userRepository.findByEmail(email);
