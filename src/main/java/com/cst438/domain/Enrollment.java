@@ -6,7 +6,6 @@ import java.util.List;
 @Entity
 public class Enrollment {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="enrollment_id")
     int enrollmentId;
 
