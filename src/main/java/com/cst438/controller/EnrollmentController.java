@@ -24,9 +24,6 @@ public class EnrollmentController {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    CourseController courseController;
-
       /****************************
           GET ENROLLMENTS
        ****************************/

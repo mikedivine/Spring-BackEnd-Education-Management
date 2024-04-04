@@ -15,6 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Date;
+import java.util.List;
+
 import static java.lang.Integer.parseInt;
 
 @Service
@@ -44,6 +47,12 @@ public class RegistrarServiceProxy {
   @Autowired
   SectionRepository sectionRepository;
 
+  @Autowired
+  EnrollmentRepository enrollmentRepository;
+
+  @Autowired
+  GradeRepository gradeRepository;
+
   @RabbitListener(queues = "gradebook_service")
   public void receiveFromRegistrar(String message)  {
     // receive messages for new or updated or deleted courses, sections, users,
@@ -59,6 +68,12 @@ public class RegistrarServiceProxy {
       User instructor;
       User user = null;
       UserDTO userDTO;
+      Enrollment enrollment = new Enrollment();
+      int sectionNo;
+      int studentId;
+      int enrollmentId;
+      Date today = new Date();
+
       switch (messageParts[0]) {
 
         case "newCourse":
@@ -216,22 +231,101 @@ public class RegistrarServiceProxy {
           if (user != null) {
             userRepository.delete(user);
           }
-
           break;
 
-        case "newEnrollment":
+        case "addCourse":
+          sectionNo = parseInt(messageParts[1]);
+          studentId = parseInt(messageParts[2]);
+
+          user = userRepository.findById(studentId).orElse(null);
+          // Verify user exists and is a student
+          if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: "
+              + studentId + " not found.");
+          }
+          if (!(user.getType().equals("STUDENT"))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+              "User with ID: " + studentId + " is not a student.");
+          }
+
+          enrollment.setUser(user);
+
+          // check that the Section entity with primary key sectionNo exists
+          section = sectionRepository.findById(sectionNo)
+            .orElseThrow(() -> new ResponseStatusException(
+              HttpStatus.NOT_FOUND, "Section with Section Number: " +
+                sectionNo + " not found"));
+
+          enrollment.setSection(section);
+
+          // check that today is between addDate and addDeadline for the section
+          term = section.getTerm();
+          if (today.before(term.getAddDate())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+              "You have attempted to add a course before the Add Date.");
+          } else if (today.after(term.getAddDeadline())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+              "You have attempted to add a course after the Add Deadline.");
+          }
+
+          // check that student is not already enrolled into this section
+          List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
+          for (Enrollment anEnrollment: enrollments) {
+            if (anEnrollment.getSection().getSectionNo() == sectionNo) {
+              throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "You have attempted to add a course the student is already enrolled in.");
+            }
+          }
+
+          // create a new enrollment entity and save.  The enrollment grade will
+          // be NULL until instructor enters final grades for the course.
+          enrollmentRepository.save(enrollment);
           break;
 
-        case "deleteEnrollment":
-          break;
+        case "dropCourse":
+          enrollmentId = parseInt(messageParts[1]);
+          studentId = parseInt(messageParts[2]);
 
+          user = userRepository.findById(studentId).orElse(null);
+          // Verify user exists and is a student
+          if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: "
+              + studentId + " not found.");
+          }
+          if (!(user.getType().equals("STUDENT"))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+              "User with ID: " + studentId + " is not a student.");
+          }
+
+          enrollment = enrollmentRepository.findById(enrollmentId).orElse(null);
+          if (enrollment == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "Enrollment ID: " + enrollmentId + " not found.");
+          }
+
+          List<Grade> grades = enrollment.getGrades();
+          section = enrollment.getSection();
+          term = section.getTerm();
+          course = section.getCourse();
+
+          // check that today is not after the dropDeadline for section
+          if (today.before(term.getDropDeadline())) {
+            for (Grade grade: grades) {
+              gradeRepository.delete(grade);
+            }
+            enrollmentRepository.delete(enrollment);
+          } else {
+            throw new ResponseStatusException(
+              HttpStatus.CONFLICT,
+              "Course: " + course.getTitle() + " for Section Number: " +
+                section.getSectionNo() + " cannot be dropped after the Drop Deadline.");
+          }
+          break;
       }
-
     } catch (Exception exception) {
       System.out.println("Exception received from RegistrarService: " + exception.getMessage());
     }
   }
-
 
   private void sendMessage(String message) {
     System.out.println("Gradebook to Registrar: " + message);
