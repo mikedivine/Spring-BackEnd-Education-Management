@@ -33,8 +33,9 @@ public class Section {
     @OneToMany(mappedBy="section")
     List<Enrollment> enrollments;
 
-    @OneToMany(mappedBy="section")
-    List<Assignment> assignments;
+    //commented out for Assignment 6
+//    @OneToMany(mappedBy="section")
+//    List<Assignment> assignments;
 
     public int getSectionNo() {
         return sectionNo;
@@ -104,5 +105,6 @@ public class Section {
         return enrollments;
     }
 
-    public List<Assignment> getAssignments() { return assignments; }
+    //commented out for assignment 6
+ //   public List<Assignment> getAssignments() { return assignments; }
 }

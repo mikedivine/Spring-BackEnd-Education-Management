@@ -1,5 +1,10 @@
 package com.cst438.service;
 
+import com.cst438.domain.Course;
+import com.cst438.domain.Enrollment;
+import com.cst438.domain.EnrollmentRepository;
+import com.cst438.dto.CourseDTO;
+import com.cst438.dto.EnrollmentDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -7,6 +12,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+
+import java.sql.SQLOutput;
 
 @Service
 public class GradebookServiceProxy {
@@ -21,9 +28,40 @@ public class GradebookServiceProxy {
   @Autowired
   RabbitTemplate rabbitTemplate;
 
+  @Autowired
+  EnrollmentRepository enrollmentRepository;
+
+  public void addCourse(CourseDTO course) {
+    sendMessage("addCourse "+asJsonString(course));
+  }
+
+  public void updateCourse(CourseDTO course) {
+    sendMessage("updateCourse "+asJsonString(course));
+  }
+
+  public void deleteCourse(String courseId) {
+    sendMessage("deleteCourse "+asJsonString(courseId));
+  }
+
   @RabbitListener(queues = "registrar_service")
   public void receiveFromGradebook(String message)  {
     //TODO implement this message
+    //receive from the gradebook service
+    try {
+      String [] parts = message.split(" ",2);
+      if (parts[0].equals("updateEnrollment")) {
+        EnrollmentDTO dto = fromJsonString(parts[1], EnrollmentDTO.class);
+        Enrollment e = enrollmentRepository.findById(dto.enrollmentId()).orElse(null);
+        if (e == null) {
+          System.out.println("Error in receiveFromGradebook Enrollment not found" + dto.enrollmentId());
+        } else {
+          e.setGrade(dto.grade());
+          enrollmentRepository.save(e);
+        }
+      }
+    } catch (Exception e) {
+      System.out.println("Exception in receiveFromGradebook " +e.getMessage());
+    }
   }
 
   private void sendMessage(String s) {

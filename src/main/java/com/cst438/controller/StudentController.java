@@ -34,8 +34,9 @@ public class StudentController {
     @Autowired
     CourseRepository courseRepository;
 
-    @Autowired
-    GradeRepository gradeRepository;
+    //commented out for Assignment 6
+   // @Autowired
+   // GradeRepository gradeRepository;
 
     /****************************
        GET TRANSCRIPTS
@@ -168,21 +169,38 @@ public class StudentController {
          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment ID not found.");
         }
 
-        List<Grade> grades = enrollment.getGrades();
+        //Commented out for assignment 6
+//        List<Grade> grades = enrollment.getGrades();
+//        Section section = enrollment.getSection();
+//        Term term = section.getTerm();
+//        Date today = new Date();
+//
+//        // check that today is not after the dropDeadline for section
+//        if (today.before(term.getDropDeadline())) {
+//          for (Grade g: grades) {
+//            gradeRepository.delete(g);
+//          }
+//          enrollmentRepository.delete(enrollment);
+//        } else {
+//          throw new ResponseStatusException(
+//            HttpStatus.CONFLICT,
+//              "Course " + enrollmentId + " cannot be dropped after the Drop Deadline.");
+//        }
+
+
+
+        //this was added to make Assignment 6 work
+
         Section section = enrollment.getSection();
         Term term = section.getTerm();
         Date today = new Date();
-
-        // check that today is not after the dropDeadline for section
         if (today.before(term.getDropDeadline())) {
-          for (Grade g: grades) {
-            gradeRepository.delete(g);
-          }
-          enrollmentRepository.delete(enrollment);
+            enrollmentRepository.delete(enrollment);
         } else {
-          throw new ResponseStatusException(
-            HttpStatus.CONFLICT,
-              "Course " + enrollmentId + " cannot be dropped after the Drop Deadline.");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Course " + enrollmentId + " cannot be dropped after the Deadline.");
+
         }
     }
 

@@ -23,8 +23,9 @@ public class Enrollment {
     @JoinColumn(name="section_no", nullable=false)
     private Section section;
 
-    @OneToMany(mappedBy="enrollment")
-    private List<Grade> grades;
+    //commented out for Assignment 6
+ //   @OneToMany(mappedBy="enrollment")
+ //   private List<Grade> grades;
 
     public int getEnrollmentId() {
         return enrollmentId;
@@ -58,11 +59,14 @@ public class Enrollment {
         this.section = section;
     }
 
-    public List<Grade> getGrades() {
-      return grades;
-    }
 
-    public void setGrades(List<Grade> grades) {
-      this.grades = grades;
-    }
+    //commented out for Assignment 6
+ //   public List<Grade> getGrades() {
+ //     return grades;
+//    }
+
+//Commented out for Assignment 6
+//    public void setGrades(List<Grade> grades) {
+//      this.grades = grades;
+//    }
 }

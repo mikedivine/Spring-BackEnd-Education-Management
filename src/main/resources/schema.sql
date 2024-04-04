@@ -57,22 +57,22 @@ create table enrollment (
 create sequence assignment_seq;
 ALTER SEQUENCE assignment_seq RESTART WITH 6000;
 
-create table assignment (
-    assignment_id int  default next value for assignment_seq primary key,
-    section_no int not null,
-    title varchar(250) not null,
-    due_date Date,
-    foreign key (section_no) references section(section_no)
-);
-
-create sequence grade_seq;
-ALTER SEQUENCE grade_seq RESTART WITH 12000;
-
-create table grade (
-    grade_id int default next value for grade_seq primary key,
-    enrollment_id int not null,
-    assignment_id int not null,
-    score int check (score between 0 and 100),
-    foreign key(enrollment_id) references enrollment(enrollment_id),
-    foreign key(assignment_id) references assignment(assignment_id)
-);
+-- create table assignment (
+--     assignment_id int  default next value for assignment_seq primary key,
+--     section_no int not null,
+--     title varchar(250) not null,
+--     due_date Date,
+--     foreign key (section_no) references section(section_no)
+-- );
+--
+-- create sequence grade_seq;
+-- ALTER SEQUENCE grade_seq RESTART WITH 12000;
+--
+-- create table grade (
+--     grade_id int default next value for grade_seq primary key,
+--     enrollment_id int not null,
+--     assignment_id int not null,
+--     score int check (score between 0 and 100),
+--     foreign key(enrollment_id) references enrollment(enrollment_id),
+--     foreign key(assignment_id) references assignment(assignment_id)
+-- );
