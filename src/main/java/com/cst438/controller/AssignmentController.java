@@ -2,6 +2,7 @@ package com.cst438.controller;
 
 import com.cst438.domain.*;
 import com.cst438.dto.*;
+import com.cst438.service.RegistrarServiceProxy;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,9 @@ public class AssignmentController {
 
     @Autowired
     SectionRepository sectionRepository;
+
+    @Autowired
+    RegistrarServiceProxy registrarServiceProxy;
 
     /****************************
         LIST ASSIGNMENTS
@@ -125,7 +129,8 @@ public class AssignmentController {
         assignmentRepository.save(a);
 
         //return the information
-        return new AssignmentDTO(
+        AssignmentDTO theAssignment =
+          new AssignmentDTO(
             a.getAssignmentId(),
             a.getTitle(),
             assignmentDTO.dueDate(),
@@ -133,7 +138,10 @@ public class AssignmentController {
             c.getTitle(),
             s.getSecId(),
             s.getSectionNo()
-        );
+          );
+
+        registrarServiceProxy.createAssignment(theAssignment);
+        return theAssignment;
     }
 
     /****************************
@@ -160,7 +168,8 @@ public class AssignmentController {
         a.setTitle(dto.title());
         a.setDue_date(Date.valueOf(dto.dueDate()));
         assignmentRepository.save(a);
-        return new AssignmentDTO(
+        AssignmentDTO theAssignment =
+          new AssignmentDTO(
             a.getAssignmentId(),
             a.getTitle(),
             a.getDue_date().toString(),
@@ -168,8 +177,9 @@ public class AssignmentController {
             c.getTitle(),
             a.getSection().getSecId(),
             a.getSection().getSectionNo()
-        );
-
+          );
+        registrarServiceProxy.updateAssignment(theAssignment);
+        return theAssignment;
     }
 
     /****************************
@@ -183,17 +193,18 @@ public class AssignmentController {
       @RequestParam("instructorEmail") String instructorEmail
       ) {
 
-        Assignment a = assignmentRepository.findById(assignmentId).
+        Assignment assignment = assignmentRepository.findById(assignmentId).
           orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "Assignment not found"));
-        Section s = a.getSection();
+        Section s = assignment.getSection();
 
         // Verify user exists and is an instructor and is the correct instructor
         verifyInstructor(instructorEmail, s.getInstructorEmail());
         List<Grade> grades = gradeRepository.findByAssignmentId(assignmentId);
         gradeRepository.deleteAll(grades);
-        assignmentRepository.delete(a);
 
+        registrarServiceProxy.deleteAssignment(assignmentId, instructorEmail);
+        assignmentRepository.delete(assignment);
     }
 
     /****************************
@@ -247,6 +258,7 @@ public class AssignmentController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
               "No Grades found.");
         }
+
         return gradeDTOs;
     }
 
@@ -267,11 +279,11 @@ public class AssignmentController {
           Grade grade = gradeRepository.findById(gradeDTO.gradeId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Grade not found"));
 
-          Enrollment e = grade.getEnrollment();
-          Section s = e.getSection();
+          Enrollment enrollment = grade.getEnrollment();
+          Section section = enrollment.getSection();
 
           // Verify user exists and is an instructor and is the correct instructor
-          verifyInstructor(instructorEmail, s.getInstructorEmail());
+          verifyInstructor(instructorEmail, section.getInstructorEmail());
 
           // Updates the score of the Grade
           grade.setScore(gradeDTO.score());
@@ -279,8 +291,8 @@ public class AssignmentController {
           // Saves the updated Grade in the DB
           gradeRepository.save(grade);
         }
+        registrarServiceProxy.updateGrades(dlist, instructorEmail);
         return dlist;
-
     }
 
     /****************************

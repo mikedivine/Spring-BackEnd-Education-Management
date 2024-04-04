@@ -1,9 +1,7 @@
 package com.cst438.service;
 
 import com.cst438.domain.*;
-import com.cst438.dto.CourseDTO;
-import com.cst438.dto.SectionDTO;
-import com.cst438.dto.UserDTO;
+import com.cst438.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -52,6 +50,22 @@ public class RegistrarServiceProxy {
 
   @Autowired
   GradeRepository gradeRepository;
+
+  public void createAssignment(AssignmentDTO assignmentDTO) {
+    sendMessage("createAssignment " + asJsonString(assignmentDTO));
+  }
+
+  public void updateAssignment(AssignmentDTO assignmentDTO) {
+    sendMessage("updateAssignment " + asJsonString(assignmentDTO));
+  }
+
+  public void deleteAssignment(int assignmentId, String instructorEmail) {
+    sendMessage("deleteAssignment " + assignmentId + " " + instructorEmail);
+  }
+
+  public void updateGrades(List<GradeDTO> grades, String instructorEmail) {
+    sendMessage("updateGrades " + instructorEmail + " " + asJsonString(grades));
+  }
 
   @RabbitListener(queues = "gradebook_service")
   public void receiveFromRegistrar(String message)  {
@@ -314,6 +328,7 @@ public class RegistrarServiceProxy {
               gradeRepository.delete(grade);
             }
             enrollmentRepository.delete(enrollment);
+            System.out.println("Enrollment with ID: " + enrollmentId + " deleted.");
           } else {
             throw new ResponseStatusException(
               HttpStatus.CONFLICT,
