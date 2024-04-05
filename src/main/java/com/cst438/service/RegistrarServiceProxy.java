@@ -53,8 +53,8 @@ public class RegistrarServiceProxy {
   @Autowired
   GradeRepository gradeRepository;
 
-  public void updateGrades(List<EnrollmentDTO> grades) {
-    sendMessage("updateGrades " + asJsonString(grades));
+  public void updateEnrollmentGrades(List<EnrollmentDTO> enrollments) {
+    sendMessage("updateEnrollmentGrades " + asJsonString(enrollments));
   }
 
   @RabbitListener(queues = "gradebook_service")
@@ -292,6 +292,10 @@ public class RegistrarServiceProxy {
                 " cannot be dropped after the Drop Deadline.") {
             };
           }
+          break;
+
+        case "MESSAGE":
+          System.out.println("Message received from RegistrarService: " + messageParts[1]);
           break;
 
         default:
