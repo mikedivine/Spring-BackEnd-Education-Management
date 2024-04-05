@@ -44,7 +44,7 @@ public class AssignmentController {
     RegistrarServiceProxy registrarServiceProxy;
 
     /****************************
-        LIST ASSIGNMENTS
+      INSTRUCTOR LIST ASSIGNMENTS
      ****************************/
     // instructor lists assignments for a section.  Assignments ordered by due date.
     // logged in user must be the instructor for the section

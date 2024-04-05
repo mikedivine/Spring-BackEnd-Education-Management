@@ -78,7 +78,7 @@ public class RegistrarServiceProxy {
 
       switch (messageParts[0]) {
 
-        case "newCourse":
+        case "addCourse":
           courseDTO = fromJsonString(messageParts[1], CourseDTO.class);
           course.setCredits(courseDTO.credits());
           course.setTitle(courseDTO.title());
@@ -109,7 +109,7 @@ public class RegistrarServiceProxy {
           }
           break;
 
-        case "newSection":
+        case "addSection":
           sectionDTO = fromJsonString(messageParts[1], SectionDTO.class);
           course = courseRepository.findById(sectionDTO.courseId()).orElse(null);
           if (course == null ){
@@ -145,7 +145,7 @@ public class RegistrarServiceProxy {
           sectionRepository.save(section);
           break;
 
-        case "editSection":
+        case "updateSection":
           sectionDTO = fromJsonString(messageParts[1], SectionDTO.class);
           // can only change instructor email, sec_id, building, room, times, start, end dates
           section = sectionRepository.findById(sectionDTO.secNo()).orElse(null);
@@ -184,7 +184,7 @@ public class RegistrarServiceProxy {
           }
           break;
 
-        case "newUser":
+        case "addUser":
           userDTO = fromJsonString(messageParts[1], UserDTO.class);
           user.setName(userDTO.name());
           user.setEmail(userDTO.email());
@@ -204,7 +204,7 @@ public class RegistrarServiceProxy {
           userRepository.save(user);
           break;
 
-        case "editUser":
+        case "updateUser":
           userDTO = fromJsonString(messageParts[1], UserDTO.class);
           user = userRepository.findById(userDTO.id()).orElse(null);
 
@@ -235,7 +235,7 @@ public class RegistrarServiceProxy {
           }
           break;
 
-        case "addCourse":
+        case "addEnrollment":
           sectionNo = parseInt(messageParts[1]);
           studentId = parseInt(messageParts[2]);
 
@@ -284,7 +284,7 @@ public class RegistrarServiceProxy {
           enrollmentRepository.save(enrollment);
           break;
 
-        case "dropCourse":
+        case "deleteEnrollment":
           enrollmentId = parseInt(messageParts[1]);
           studentId = parseInt(messageParts[2]);
 
@@ -324,6 +324,10 @@ public class RegistrarServiceProxy {
                 section.getSectionNo() + " cannot be dropped after the Drop Deadline.");
           }
           break;
+
+        default:
+          System.out.println("No method was found for the Request: " + message);
+          break;
       }
     } catch (Exception exception) {
       System.out.println("Exception received from RegistrarService: " + exception.getMessage());
@@ -334,6 +338,7 @@ public class RegistrarServiceProxy {
     System.out.println("Gradebook to Registrar: " + message);
     rabbitTemplate.convertAndSend(registrarServiceQueue.getName(), message);
   }
+
   private static String asJsonString(final Object obj) {
     try {
       return new ObjectMapper().writeValueAsString(obj);
@@ -341,6 +346,7 @@ public class RegistrarServiceProxy {
       throw new RuntimeException(e);
     }
   }
+
   private static <T> T  fromJsonString(String str, Class<T> valueType ) {
     try {
       return new ObjectMapper().readValue(str, valueType);
