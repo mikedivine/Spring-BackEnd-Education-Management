@@ -51,8 +51,8 @@ public class RegistrarServiceProxy {
   @Autowired
   GradeRepository gradeRepository;
 
-  public void updateGrades(List<EnrollmentDTO> grades, String instructorEmail) {
-    sendMessage("updateGrades " + instructorEmail + " " + asJsonString(grades));
+  public void updateGrades(List<EnrollmentDTO> grades) {
+    sendMessage("updateGrades " + asJsonString(grades));
   }
 
   @RabbitListener(queues = "gradebook_service")

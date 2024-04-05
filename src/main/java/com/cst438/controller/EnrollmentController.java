@@ -110,7 +110,7 @@ public class EnrollmentController {
             enrollment.setGrade(e.grade());
             enrollmentRepository.save(enrollment);
         }
-        registrarServiceProxy.updateGrades(enrollmentDTOs, instructorEmail);
+        registrarServiceProxy.updateGrades(enrollmentDTOs);
     }
 
   private void validateInstructor(String email, String InstructorEmail) {
