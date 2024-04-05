@@ -265,6 +265,7 @@ public class RegistrarServiceProxy {
           enrollment = enrollmentRepository.findById(enrollmentId).orElse(null);
 
           if (enrollment == null) {
+            sendMessage("MESSAGE Enrollment ID: " + enrollmentId + " not found. Enrollment not removed.");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment id not found");
           }
 
@@ -282,7 +283,10 @@ public class RegistrarServiceProxy {
             }
             enrollmentRepository.delete(enrollment);
             System.out.println("Enrollment with ID: " + enrollmentId + " deleted.");
+            sendMessage("MESSAGE Enrollment with ID: " + enrollmentId + " deleted.");
           } else {
+            sendMessage("MESSAGE Course: " + course.getTitle() + " for Section Number: " +
+              section.getSectionNo() + " cannot be dropped after the Drop Deadline.");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course: " +
               course.getTitle() + " for Section Number: " + section.getSectionNo() +
                 " cannot be dropped after the Drop Deadline.") {
