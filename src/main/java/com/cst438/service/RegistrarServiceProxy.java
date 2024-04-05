@@ -51,19 +51,7 @@ public class RegistrarServiceProxy {
   @Autowired
   GradeRepository gradeRepository;
 
-  public void createAssignment(AssignmentDTO assignmentDTO) {
-    sendMessage("createAssignment " + asJsonString(assignmentDTO));
-  }
-
-  public void updateAssignment(AssignmentDTO assignmentDTO) {
-    sendMessage("updateAssignment " + asJsonString(assignmentDTO));
-  }
-
-  public void deleteAssignment(int assignmentId, String instructorEmail) {
-    sendMessage("deleteAssignment " + assignmentId + " " + instructorEmail);
-  }
-
-  public void updateGrades(List<GradeDTO> grades, String instructorEmail) {
+  public void updateGrades(List<EnrollmentDTO> grades, String instructorEmail) {
     sendMessage("updateGrades " + instructorEmail + " " + asJsonString(grades));
   }
 
