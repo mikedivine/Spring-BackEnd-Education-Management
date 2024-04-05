@@ -9,10 +9,12 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -66,6 +68,7 @@ public class RegistrarServiceProxy {
       CourseDTO courseDTO = null;
       EnrollmentDTO enrollmentDTO;
       Enrollment enrollment = new Enrollment();
+      List<Grade> grades;
       Section section = new Section();
       SectionDTO sectionDTO;
       Term term;
@@ -255,43 +258,35 @@ public class RegistrarServiceProxy {
           break;
 
         case "deleteEnrollment":
-          enrollmentId = parseInt(messageParts[1]);
-          studentId = parseInt(messageParts[2]);
-
-          user = userRepository.findById(studentId).orElse(null);
-          // Verify user exists and is a student
-          if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: "
-              + studentId + " not found.");
-          }
-          if (!(user.getType().equals("STUDENT"))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-              "User with ID: " + studentId + " is not a student.");
-          }
+          String[] idSplit = messageParts[1].split(" ", 2);
+          enrollmentId = parseInt(idSplit[0]);
+          studentId = parseInt(idSplit[1]);
 
           enrollment = enrollmentRepository.findById(enrollmentId).orElse(null);
+
           if (enrollment == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Enrollment ID: " + enrollmentId + " not found.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment id not found");
           }
 
-          List<Grade> grades = enrollment.getGrades();
+          grades = gradeRepository.findByEnrollmentId(enrollmentId);
           section = enrollment.getSection();
           term = section.getTerm();
           course = section.getCourse();
 
           // check that today is not after the dropDeadline for section
           if (today.before(term.getDropDeadline())) {
-            for (Grade grade: grades) {
-              gradeRepository.delete(grade);
+            if(!(grades == null)) {
+              for (Grade grade: grades) {
+                gradeRepository.delete(grade);
+              }
             }
             enrollmentRepository.delete(enrollment);
             System.out.println("Enrollment with ID: " + enrollmentId + " deleted.");
           } else {
-            throw new ResponseStatusException(
-              HttpStatus.CONFLICT,
-              "Course: " + course.getTitle() + " for Section Number: " +
-                section.getSectionNo() + " cannot be dropped after the Drop Deadline.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course: " +
+              course.getTitle() + " for Section Number: " + section.getSectionNo() +
+                " cannot be dropped after the Drop Deadline.") {
+            };
           }
           break;
 
@@ -300,7 +295,7 @@ public class RegistrarServiceProxy {
           break;
       }
     } catch (Exception exception) {
-      System.out.println("Exception received from RegistrarService: " + exception.getMessage());
+      System.out.println("Exception received from RegistrarService: " + exception.toString());
     }
   }
 

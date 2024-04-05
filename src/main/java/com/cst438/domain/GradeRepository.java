@@ -12,4 +12,7 @@ public interface GradeRepository extends CrudRepository<Grade, Integer> {
 
     @Query("select g from Grade g where g.assignment.assignmentId=:assignmentId")
     List<Grade> findByAssignmentId(int assignmentId);
+
+    @Query("select grades from Grade grades where grades.enrollment.enrollmentId=:enrollmentId")
+    List<Grade> findByEnrollmentId(int enrollmentId);
 }
