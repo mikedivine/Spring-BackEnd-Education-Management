@@ -3,6 +3,7 @@ package com.cst438.controller;
 import com.cst438.domain.User;
 import com.cst438.domain.UserRepository;
 import com.cst438.dto.UserDTO;
+import com.cst438.service.GradebookServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,9 @@ public class UserController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    GradebookServiceProxy gradebookService;
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -59,7 +63,11 @@ public class UserController {
             throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
         }
         userRepository.save(user);
-        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+        UserDTO newUser = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+
+        gradebookService.addUser(newUser);
+
+        return newUser;
     }
 
     // update a User
@@ -79,7 +87,11 @@ public class UserController {
             throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
         }
         userRepository.save(user);
-        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+        UserDTO newUser = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+
+        gradebookService.updateUser(newUser);
+        return newUser;
+
     }
 
     // delete a user
@@ -89,5 +101,7 @@ public class UserController {
         if (user!=null) {
             userRepository.delete(user);
         }
+
+        gradebookService.deleteUser(id);
     }
 }

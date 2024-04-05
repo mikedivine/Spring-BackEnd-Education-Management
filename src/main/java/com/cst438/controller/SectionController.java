@@ -2,6 +2,7 @@ package com.cst438.controller;
 
 import com.cst438.domain.*;
 import com.cst438.dto.SectionDTO;
+import com.cst438.service.GradebookServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,9 @@ public class SectionController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    GradebookServiceProxy gradebookService;
 
 
     /****************************
@@ -64,7 +68,7 @@ public class SectionController {
         }
 
         sectionRepository.save(s);
-        return new SectionDTO(
+        SectionDTO sectionDTO = new SectionDTO(
                 s.getSectionNo(),
                 s.getTerm().getYear(),
                 s.getTerm().getSemester(),
@@ -77,6 +81,9 @@ public class SectionController {
                 (instructor!=null) ? instructor.getName() : "",
                 (instructor!=null) ? instructor.getEmail() : ""
         );
+
+        gradebookService.addSection(sectionDTO);
+        return sectionDTO;
     }
 
     /****************************
@@ -106,6 +113,24 @@ public class SectionController {
             s.setInstructor_email(section.instructorEmail());
         }
         sectionRepository.save(s);
+
+        Course course = courseRepository.findById(section.courseId()).orElse(null);
+
+        SectionDTO sectionDTO = new SectionDTO(
+                s.getSectionNo(),
+                s.getTerm().getYear(),
+                s.getTerm().getSemester(),
+                s.getCourse().getCourseId(),
+                s.getSecId(),
+                s.getBuilding(),
+                s.getRoom(),
+                s.getTimes(),
+                course.getTitle(),
+                (instructor!=null) ? instructor.getName() : "",
+                (instructor!=null) ? instructor.getEmail() : ""
+        );
+
+        gradebookService.updateSection(sectionDTO);
     }
 
     /****************************
@@ -125,6 +150,8 @@ public class SectionController {
         if (s != null) {
             sectionRepository.delete(s);
         }
+
+        gradebookService.deleteSection(sectionno);
     }
 
     /****************************

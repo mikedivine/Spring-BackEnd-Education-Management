@@ -4,6 +4,7 @@ import com.cst438.domain.*;
 import com.cst438.dto.CourseDTO;
 import com.cst438.dto.EnrollmentDTO;
 import com.cst438.dto.UserDTO;
+import com.cst438.service.GradebookServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,9 @@ public class StudentController {
 
     @Autowired
     CourseRepository courseRepository;
+
+    @Autowired
+    GradebookServiceProxy gradebookService;
 
     //commented out for Assignment 6
    // @Autowired
@@ -130,7 +134,7 @@ public class StudentController {
         // be NULL until instructor enters final grades for the course.
         enrollmentRepository.save(e);
 
-        return new EnrollmentDTO(
+        EnrollmentDTO enrollmentDTO = new EnrollmentDTO(
           e.getEnrollmentId(),
           e.getGrade(),
           user.getId(),
@@ -147,6 +151,9 @@ public class StudentController {
           term.getSemester(),
           course.getTitle()
         );
+
+        gradebookService.enrollInCourse(enrollmentDTO);
+        return enrollmentDTO;
     }
 
     /****************************
@@ -196,6 +203,7 @@ public class StudentController {
         Date today = new Date();
         if (today.before(term.getDropDeadline())) {
             enrollmentRepository.delete(enrollment);
+            gradebookService.dropCourse(enrollment.getEnrollmentId());
         } else {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
