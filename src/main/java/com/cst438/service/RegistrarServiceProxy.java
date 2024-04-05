@@ -73,7 +73,7 @@ public class RegistrarServiceProxy {
     //  and enrollments.  Perform the necessary update to the local database.
     try {
       System.out.println("Receive from Registrar: " + message);
-      String[] messageParts = message.split(" ", 2);
+      String[] messageParts = message.split(" ", 3);
       Course course = null;
       CourseDTO courseDTO = null;
       Section section = null;
@@ -90,7 +90,7 @@ public class RegistrarServiceProxy {
 
       switch (messageParts[0]) {
 
-        case "newCourse":
+        case "addCourse":
           courseDTO = fromJsonString(messageParts[1], CourseDTO.class);
           course.setCredits(courseDTO.credits());
           course.setTitle(courseDTO.title());
@@ -121,7 +121,7 @@ public class RegistrarServiceProxy {
           }
           break;
 
-        case "newSection":
+        case "addSection":
           sectionDTO = fromJsonString(messageParts[1], SectionDTO.class);
           course = courseRepository.findById(sectionDTO.courseId()).orElse(null);
           if (course == null ){
@@ -157,7 +157,7 @@ public class RegistrarServiceProxy {
           sectionRepository.save(section);
           break;
 
-        case "editSection":
+        case "updateSection":
           sectionDTO = fromJsonString(messageParts[1], SectionDTO.class);
           // can only change instructor email, sec_id, building, room, times, start, end dates
           section = sectionRepository.findById(sectionDTO.secNo()).orElse(null);
@@ -196,7 +196,7 @@ public class RegistrarServiceProxy {
           }
           break;
 
-        case "newUser":
+        case "addUser":
           userDTO = fromJsonString(messageParts[1], UserDTO.class);
           user.setName(userDTO.name());
           user.setEmail(userDTO.email());
@@ -216,7 +216,7 @@ public class RegistrarServiceProxy {
           userRepository.save(user);
           break;
 
-        case "editUser":
+        case "updateUser":
           userDTO = fromJsonString(messageParts[1], UserDTO.class);
           user = userRepository.findById(userDTO.id()).orElse(null);
 
@@ -247,8 +247,9 @@ public class RegistrarServiceProxy {
           }
           break;
 
-        case "addCourse":
-          sectionNo = parseInt(messageParts[1]);
+        case "addEnrollment":
+          EnrollmentDTO enrollmentDTO = fromJsonString(messageParts[1], EnrollmentDTO.class);
+          sectionNo = enrollmentDTO.sectionNo();
           studentId = parseInt(messageParts[2]);
 
           user = userRepository.findById(studentId).orElse(null);
@@ -296,7 +297,7 @@ public class RegistrarServiceProxy {
           enrollmentRepository.save(enrollment);
           break;
 
-        case "dropCourse":
+        case "deleteEnrollment":
           enrollmentId = parseInt(messageParts[1]);
           studentId = parseInt(messageParts[2]);
 
