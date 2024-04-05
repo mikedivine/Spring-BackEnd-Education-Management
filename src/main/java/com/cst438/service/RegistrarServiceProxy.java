@@ -62,11 +62,11 @@ public class RegistrarServiceProxy {
     try {
       System.out.println("Receive from Registrar: " + message);
       String[] messageParts = message.split(" ", 2);
-      Course course = null;
+      Course course = new Course();
       CourseDTO courseDTO = null;
       EnrollmentDTO enrollmentDTO;
-      Enrollment enrollment = null;
-      Section section = null;
+      Enrollment enrollment = new Enrollment();
+      Section section = new Section();
       SectionDTO sectionDTO;
       Term term;
       User instructor;
