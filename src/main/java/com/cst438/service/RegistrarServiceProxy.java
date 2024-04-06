@@ -57,12 +57,12 @@ public class RegistrarServiceProxy {
     sendMessage("updateEnrollmentGrades " + asJsonString(enrollments));
   }
 
+  // receive messages for new or updated or deleted courses, sections, users,
+  //  and enrollments.  Perform the necessary update to the local database.
   @RabbitListener(queues = "gradebook_service")
   public void receiveFromRegistrar(String message)  {
-    // receive messages for new or updated or deleted courses, sections, users,
-    //  and enrollments.  Perform the necessary update to the local database.
+
     try {
-      System.out.println("Receive from Registrar: " + message);
       String[] messageParts = message.split(" ", 2);
       Course course = new Course();
       CourseDTO courseDTO = null;
