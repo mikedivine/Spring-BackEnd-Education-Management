@@ -1,7 +1,7 @@
 package com.cst438.service;
 
 import com.cst438.domain.Course;
-import com.cst438.domain.Enrollment;
+import com.cst438.domain.*;
 import com.cst438.domain.EnrollmentRepository;
 import com.cst438.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
