@@ -75,7 +75,7 @@ public class RegistrarServiceProxy {
       SectionDTO sectionDTO;
       Term term;
       User instructor;
-      User user = null;
+      User user = new User();
       UserDTO userDTO;
       int sectionNo;
       int studentId;
