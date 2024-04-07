@@ -5,6 +5,8 @@ import com.cst438.domain.*;
 import com.cst438.domain.EnrollmentRepository;
 import com.cst438.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.sql.SQLOutput;
+import java.util.List;
 
 @Service
 public class GradebookServiceProxy {
@@ -81,13 +85,20 @@ public class GradebookServiceProxy {
     try {
       String [] parts = message.split(" ",2);
       if (parts[0].equals("updateEnrollment")) {
-        EnrollmentDTO dto = fromJsonString(parts[1], EnrollmentDTO.class);
-        Enrollment e = enrollmentRepository.findById(dto.enrollmentId()).orElse(null);
-        if (e == null) {
-          System.out.println("Error in receiveFromGradebook Enrollment not found" + dto.enrollmentId());
-        } else {
-          e.setGrade(dto.grade());
-          enrollmentRepository.save(e);
+//        EnrollmentDTO dto = fromJsonString(parts[1], EnrollmentDTO.class);
+//        Enrollment e = enrollmentRepository.findById(dto.enrollmentId()).orElse(null);
+        Gson gson = new Gson();
+        Type enrollmentListType = new TypeToken<List<EnrollmentDTO>>() {}.getType();
+        List<EnrollmentDTO> enrollmentDTOs = gson.fromJson(parts[1], enrollmentListType);
+        for (EnrollmentDTO enrollmentDTO : enrollmentDTOs) {
+          Enrollment e = enrollmentRepository.findById(enrollmentDTO.enrollmentId()).orElse(null);
+
+          if (e == null) {
+            System.out.println("Error in receiveFromGradebook Enrollment not found" + enrollmentDTO.enrollmentId());
+          } else {
+            e.setGrade(enrollmentDTO.grade());
+            enrollmentRepository.save(e);
+          }
         }
       } else if (parts[0].equals("MESSAGE")) {
         System.out.println("Message received from Gradebook: " + parts[1]);
