@@ -89,6 +89,8 @@ public class GradebookServiceProxy {
           e.setGrade(dto.grade());
           enrollmentRepository.save(e);
         }
+      } else if (parts[0].equals("MESSAGE")) {
+        System.out.println("Message received from Gradebook: " + parts[1]);
       }
     } catch (Exception e) {
       System.out.println("Exception in receiveFromGradebook " +e.getMessage());
