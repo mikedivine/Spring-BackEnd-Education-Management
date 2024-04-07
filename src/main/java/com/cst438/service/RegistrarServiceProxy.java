@@ -90,6 +90,8 @@ public class RegistrarServiceProxy {
           course.setCredits(courseDTO.credits());
           course.setTitle(courseDTO.title());
           course.setCourseId(courseDTO.courseId());
+          System.out.println("Received from Registrar addCourse " + messageParts[1]);
+
           courseRepository.save(course);
           break;
 
@@ -102,6 +104,8 @@ public class RegistrarServiceProxy {
           } else {
             course.setCredits(courseDTO.credits());
             course.setTitle(courseDTO.title());
+            System.out.println("Received from Registrar updateCourse " + messageParts[1]);
+
             courseRepository.save(course);
           }
           break;
@@ -111,6 +115,8 @@ public class RegistrarServiceProxy {
           course = courseRepository.findById(courseId).orElse(null);
           // if course does not exist, do nothing.
           if (course != null) {
+            System.out.println("Received from Registrar deleteCourse " + messageParts[1]);
+
             courseRepository.delete(course);
           }
           break;
@@ -146,6 +152,7 @@ public class RegistrarServiceProxy {
             }
             section.setInstructor_email(sectionDTO.instructorEmail());
           }
+          System.out.println("Received from Registrar addSection " + messageParts[1]);
 
           sectionRepository.save(section);
           break;
@@ -172,6 +179,8 @@ public class RegistrarServiceProxy {
             }
             section.setInstructor_email(sectionDTO.instructorEmail());
           }
+          System.out.println("Received from Registrar updateSection " + messageParts[1]);
+
           sectionRepository.save(section);
           break;
 
@@ -185,6 +194,8 @@ public class RegistrarServiceProxy {
           }
 
           if (section != null) {
+            System.out.println("Received from Registrar deleteSection " + messageParts[1]);
+
             sectionRepository.delete(section);
           }
           break;
@@ -206,6 +217,7 @@ public class RegistrarServiceProxy {
             // invalid type
             throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
           }
+          System.out.println("Received from Registrar addUser " + messageParts[1]);
           userRepository.save(user);
           break;
 
@@ -227,7 +239,7 @@ public class RegistrarServiceProxy {
             // invalid type
             throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
           }
-
+          System.out.println("Received from Registrar updateUser " + messageParts[1]);
           userRepository.save(user);
           break;
 
@@ -236,6 +248,7 @@ public class RegistrarServiceProxy {
           user = userRepository.findById(id).orElse(null);
 
           if (user != null) {
+            System.out.println("Received from Registrar deleteUser " + messageParts[1]);
             userRepository.delete(user);
           }
           break;
@@ -256,7 +269,7 @@ public class RegistrarServiceProxy {
             .orElseThrow(() -> new ResponseStatusException(
               HttpStatus.NOT_FOUND, "Section not found"));
           enrollment.setSection(section);
-
+          System.out.println("Received from Registrar addEnrollment " + messageParts[1]);
           enrollmentRepository.save(enrollment);
           break;
 
