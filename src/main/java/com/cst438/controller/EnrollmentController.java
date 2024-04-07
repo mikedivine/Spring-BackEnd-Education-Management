@@ -3,8 +3,10 @@ package com.cst438.controller;
 
 import com.cst438.domain.*;
 import com.cst438.dto.EnrollmentDTO;
+import com.cst438.service.RegistrarServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,6 +25,9 @@ public class EnrollmentController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    RegistrarServiceProxy registrarServiceProxy;
 
       /****************************
           GET ENROLLMENTS
@@ -80,16 +85,17 @@ public class EnrollmentController {
      ****************************/
     // instructor uploads enrollments with the final grades for the section
     // user must be instructor for the section
+    @Transactional
     @PutMapping("/enrollments")
     public void updateEnrollmentGrades(
-      @RequestBody List<EnrollmentDTO> dlist,
+      @RequestBody List<EnrollmentDTO> enrollmentDTOs,
       @RequestParam("instructorEmail") String instructorEmail
       ) {
 
         // For each EnrollmentDTO in the list
         //  find the Enrollment entity using enrollmentId
         //  update the grade and save back to database
-        for (EnrollmentDTO e : dlist) {
+        for (EnrollmentDTO e : enrollmentDTOs) {
             Enrollment enrollment = enrollmentRepository.findEnrollmentByEnrollmentId(e.enrollmentId());
 
             if (enrollment == null) {
@@ -104,6 +110,7 @@ public class EnrollmentController {
             enrollment.setGrade(e.grade());
             enrollmentRepository.save(enrollment);
         }
+        registrarServiceProxy.updateEnrollmentGrades(enrollmentDTOs);
     }
 
   private void validateInstructor(String email, String InstructorEmail) {

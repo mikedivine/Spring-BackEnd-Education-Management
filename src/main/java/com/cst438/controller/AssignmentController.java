@@ -44,7 +44,7 @@ public class AssignmentController {
     RegistrarServiceProxy registrarServiceProxy;
 
     /****************************
-        LIST ASSIGNMENTS
+      INSTRUCTOR LIST ASSIGNMENTS
      ****************************/
     // instructor lists assignments for a section.  Assignments ordered by due date.
     // logged in user must be the instructor for the section
@@ -129,7 +129,7 @@ public class AssignmentController {
         assignmentRepository.save(a);
 
         //return the information
-        AssignmentDTO theAssignment =
+        return
           new AssignmentDTO(
             a.getAssignmentId(),
             a.getTitle(),
@@ -140,8 +140,6 @@ public class AssignmentController {
             s.getSectionNo()
           );
 
-        registrarServiceProxy.createAssignment(theAssignment);
-        return theAssignment;
     }
 
     /****************************
@@ -168,7 +166,7 @@ public class AssignmentController {
         a.setTitle(dto.title());
         a.setDue_date(Date.valueOf(dto.dueDate()));
         assignmentRepository.save(a);
-        AssignmentDTO theAssignment =
+        return
           new AssignmentDTO(
             a.getAssignmentId(),
             a.getTitle(),
@@ -178,8 +176,6 @@ public class AssignmentController {
             a.getSection().getSecId(),
             a.getSection().getSectionNo()
           );
-        registrarServiceProxy.updateAssignment(theAssignment);
-        return theAssignment;
     }
 
     /****************************
@@ -203,7 +199,6 @@ public class AssignmentController {
         List<Grade> grades = gradeRepository.findByAssignmentId(assignmentId);
         gradeRepository.deleteAll(grades);
 
-        registrarServiceProxy.deleteAssignment(assignmentId, instructorEmail);
         assignmentRepository.delete(assignment);
     }
 
@@ -291,7 +286,6 @@ public class AssignmentController {
           // Saves the updated Grade in the DB
           gradeRepository.save(grade);
         }
-        registrarServiceProxy.updateGrades(dlist, instructorEmail);
         return dlist;
     }
 

@@ -9,10 +9,12 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,41 +53,34 @@ public class RegistrarServiceProxy {
   @Autowired
   GradeRepository gradeRepository;
 
-  public void createAssignment(AssignmentDTO assignmentDTO) {
-    sendMessage("createAssignment " + asJsonString(assignmentDTO));
+  public void updateEnrollmentGrades(List<EnrollmentDTO> enrollments) {
+    sendMessage("updateEnrollmentGrades " + asJsonString(enrollments));
   }
 
-  public void updateAssignment(AssignmentDTO assignmentDTO) {
-    sendMessage("updateAssignment " + asJsonString(assignmentDTO));
-  }
-
-  public void deleteAssignment(int assignmentId, String instructorEmail) {
-    sendMessage("deleteAssignment " + assignmentId + " " + instructorEmail);
-  }
-
-  public void updateGrades(List<GradeDTO> grades, String instructorEmail) {
-    sendMessage("updateGrades " + instructorEmail + " " + asJsonString(grades));
-  }
-
+  // receive messages for new or updated or deleted courses, sections, users,
+  //  and enrollments.  Perform the necessary update to the local database.
   @RabbitListener(queues = "gradebook_service")
   public void receiveFromRegistrar(String message)  {
-    // receive messages for new or updated or deleted courses, sections, users,
-    //  and enrollments.  Perform the necessary update to the local database.
+
     try {
-      System.out.println("Receive from Registrar: " + message);
-      String[] messageParts = message.split(" ", 3);
-      Course course = null;
+
+      String[] messageParts = message.split(" ", 2);
+      Course course = new Course();
+
       CourseDTO courseDTO = null;
-      Section section = null;
+      EnrollmentDTO enrollmentDTO;
+      Enrollment enrollment = new Enrollment();
+      List<Grade> grades;
+      Section section = new Section();
       SectionDTO sectionDTO;
       Term term;
       User instructor;
       User user = null;
       UserDTO userDTO;
-      Enrollment enrollment = new Enrollment();
       int sectionNo;
       int studentId;
       int enrollmentId;
+      String courseId;
       Date today = new Date();
 
       switch (messageParts[0]) {
@@ -95,14 +90,13 @@ public class RegistrarServiceProxy {
           course.setCredits(courseDTO.credits());
           course.setTitle(courseDTO.title());
           course.setCourseId(courseDTO.courseId());
-
           courseRepository.save(course);
           break;
 
         case "updateCourse":
           courseDTO = fromJsonString(messageParts[1], CourseDTO.class);
           course = courseRepository.findById(courseDTO.courseId()).orElse(null);
-          if (course==null) {
+          if (course == null) {
             throw new ResponseStatusException( HttpStatus.NOT_FOUND, "Course with ID: "
               + courseDTO.courseId() + " not found.");
           } else {
@@ -113,8 +107,8 @@ public class RegistrarServiceProxy {
           break;
 
         case "deleteCourse":
-          courseDTO = fromJsonString(messageParts[1], CourseDTO.class);
-          course = courseRepository.findById(courseDTO.courseId()).orElse(null);
+          courseId = messageParts[1];
+          course = courseRepository.findById(courseId).orElse(null);
           // if course does not exist, do nothing.
           if (course != null) {
             courseRepository.delete(course);
@@ -137,7 +131,6 @@ public class RegistrarServiceProxy {
               sectionDTO.year() + " and " + sectionDTO.semester());
           }
           section.setTerm(term);
-
           section.setSecId(sectionDTO.secId());
           section.setBuilding(sectionDTO.building());
           section.setRoom(sectionDTO.room());
@@ -183,8 +176,8 @@ public class RegistrarServiceProxy {
           break;
 
         case "deleteSection":
-          sectionDTO = fromJsonString(messageParts[1], SectionDTO.class);
-          section = sectionRepository.findById(sectionDTO.secNo()).orElse(null);
+          sectionNo = parseInt(messageParts[1]);
+          section = sectionRepository.findById(sectionNo).orElse(null);
 
           if (!(section.getEnrollments().isEmpty())) {
             throw new ResponseStatusException( HttpStatus.CONFLICT,
@@ -248,98 +241,74 @@ public class RegistrarServiceProxy {
           break;
 
         case "addEnrollment":
-          EnrollmentDTO enrollmentDTO = fromJsonString(messageParts[1], EnrollmentDTO.class);
-          sectionNo = enrollmentDTO.sectionNo();
-          studentId = parseInt(messageParts[2]);
 
-          user = userRepository.findById(studentId).orElse(null);
-          // Verify user exists and is a student
+          enrollmentDTO = fromJsonString(messageParts[1], EnrollmentDTO.class);
+          enrollment.setEnrollmentId(enrollmentDTO.enrollmentId());
+          enrollment.setGrade(enrollmentDTO.grade());
+          user = userRepository.findById(enrollmentDTO.studentId()).orElse(null);
           if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: "
-              + studentId + " not found.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student id not found");
           }
-          if (!(user.getType().equals("STUDENT"))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-              "User with ID: " + studentId + " is not a student.");
-          }
-
           enrollment.setUser(user);
 
           // check that the Section entity with primary key sectionNo exists
-          section = sectionRepository.findById(sectionNo)
+          section = sectionRepository.findById(enrollmentDTO.sectionNo())
             .orElseThrow(() -> new ResponseStatusException(
-              HttpStatus.NOT_FOUND, "Section with Section Number: " +
-                sectionNo + " not found"));
-
+              HttpStatus.NOT_FOUND, "Section not found"));
           enrollment.setSection(section);
 
-          // check that today is between addDate and addDeadline for the section
-          term = section.getTerm();
-          if (today.before(term.getAddDate())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-              "You have attempted to add a course before the Add Date.");
-          } else if (today.after(term.getAddDeadline())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-              "You have attempted to add a course after the Add Deadline.");
-          }
-
-          // check that student is not already enrolled into this section
-          List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudentIdOrderByTermId(studentId);
-          for (Enrollment anEnrollment: enrollments) {
-            if (anEnrollment.getSection().getSectionNo() == sectionNo) {
-              throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "You have attempted to add a course the student is already enrolled in.");
-            }
-          }
-
-          // create a new enrollment entity and save.  The enrollment grade will
-          // be NULL until instructor enters final grades for the course.
           enrollmentRepository.save(enrollment);
           break;
 
         case "deleteEnrollment":
-          enrollmentId = parseInt(messageParts[1]);
-          studentId = parseInt(messageParts[2]);
 
-          user = userRepository.findById(studentId).orElse(null);
-          // Verify user exists and is a student
-          if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID: "
-              + studentId + " not found.");
-          }
-          if (!(user.getType().equals("STUDENT"))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-              "User with ID: " + studentId + " is not a student.");
-          }
+          String[] idSplit = messageParts[1].split(" ", 2);
+          enrollmentId = parseInt(idSplit[0]);
+          studentId = parseInt(idSplit[1]);
+
 
           enrollment = enrollmentRepository.findById(enrollmentId).orElse(null);
+
           if (enrollment == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Enrollment ID: " + enrollmentId + " not found.");
+            sendMessage("MESSAGE Enrollment ID: " + enrollmentId + " not found. Enrollment not removed.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment id not found");
           }
 
-          List<Grade> grades = enrollment.getGrades();
+          grades = gradeRepository.findByEnrollmentId(enrollmentId);
           section = enrollment.getSection();
           term = section.getTerm();
           course = section.getCourse();
 
           // check that today is not after the dropDeadline for section
           if (today.before(term.getDropDeadline())) {
-            for (Grade grade: grades) {
-              gradeRepository.delete(grade);
+            if(!(grades == null)) {
+              for (Grade grade: grades) {
+                gradeRepository.delete(grade);
+              }
             }
             enrollmentRepository.delete(enrollment);
             System.out.println("Enrollment with ID: " + enrollmentId + " deleted.");
+            sendMessage("MESSAGE Enrollment with ID: " + enrollmentId + " deleted.");
           } else {
-            throw new ResponseStatusException(
-              HttpStatus.CONFLICT,
-              "Course: " + course.getTitle() + " for Section Number: " +
-                section.getSectionNo() + " cannot be dropped after the Drop Deadline.");
+            sendMessage("MESSAGE Course: " + course.getTitle() + " for Section Number: " +
+              section.getSectionNo() + " cannot be dropped after the Drop Deadline.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course: " +
+              course.getTitle() + " for Section Number: " + section.getSectionNo() +
+                " cannot be dropped after the Drop Deadline.") {
+            };
           }
+          break;
+
+        case "MESSAGE":
+          System.out.println("Message received from RegistrarService: " + messageParts[1]);
+          break;
+
+        default:
+          System.out.println("No method was found for the Request: " + message);
           break;
       }
     } catch (Exception exception) {
-      System.out.println("Exception received from RegistrarService: " + exception.getMessage());
+      System.out.println("Exception received from RegistrarService: " + exception.toString());
     }
   }
 
@@ -347,6 +316,7 @@ public class RegistrarServiceProxy {
     System.out.println("Gradebook to Registrar: " + message);
     rabbitTemplate.convertAndSend(registrarServiceQueue.getName(), message);
   }
+
   private static String asJsonString(final Object obj) {
     try {
       return new ObjectMapper().writeValueAsString(obj);
@@ -354,6 +324,7 @@ public class RegistrarServiceProxy {
       throw new RuntimeException(e);
     }
   }
+
   private static <T> T  fromJsonString(String str, Class<T> valueType ) {
     try {
       return new ObjectMapper().readValue(str, valueType);
