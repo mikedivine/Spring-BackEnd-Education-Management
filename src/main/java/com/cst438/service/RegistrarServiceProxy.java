@@ -141,6 +141,7 @@ public class RegistrarServiceProxy {
           section.setBuilding(sectionDTO.building());
           section.setRoom(sectionDTO.room());
           section.setTimes(sectionDTO.times());
+          section.setSectionNo(sectionDTO.secNo());
 
           if (sectionDTO.instructorEmail() == null || sectionDTO.instructorEmail().equals("")) {
             section.setInstructor_email("");
@@ -187,17 +188,19 @@ public class RegistrarServiceProxy {
         case "deleteSection":
           sectionNo = parseInt(messageParts[1]);
           section = sectionRepository.findById(sectionNo).orElse(null);
+          System.out.println(section.getEnrollments());
 
           if (!(section.getEnrollments().isEmpty())) {
             throw new ResponseStatusException( HttpStatus.CONFLICT,
               "Cannot delete a section with current enrollments.");
           }
-
+          System.out.println("2222");
           if (section != null) {
             System.out.println("Received from Registrar deleteSection " + messageParts[1]);
 
             sectionRepository.delete(section);
           }
+          System.out.println("3333333");
           break;
 
         case "addUser":

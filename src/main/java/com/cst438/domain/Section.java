@@ -29,7 +29,7 @@ public class Section {
     @Column(name="instructor_email")
     private String instructorEmail;
 
-    @OneToMany(mappedBy="section")
+    @OneToMany(mappedBy="section", fetch=FetchType.EAGER)
     List<Enrollment> enrollments;
 
     @OneToMany(mappedBy="section")
