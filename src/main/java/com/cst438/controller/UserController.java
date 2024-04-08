@@ -3,6 +3,7 @@ package com.cst438.controller;
 import com.cst438.domain.User;
 import com.cst438.domain.UserRepository;
 import com.cst438.dto.UserDTO;
+import com.cst438.service.GradebookServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,12 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    GradebookServiceProxy gradebookService;
+
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
+    // List All users
     @GetMapping("/users")
     public List<UserDTO> findAllUsers() {
 
@@ -38,6 +43,7 @@ public class UserController {
         return userDTO_list;
     }
 
+    // Create new user
     @PostMapping("/users")
     public UserDTO createUser(@RequestBody UserDTO userDTO) {
         User user = new User();
@@ -57,9 +63,14 @@ public class UserController {
             throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
         }
         userRepository.save(user);
-        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+        UserDTO newUser = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+
+        gradebookService.addUser(newUser);
+
+        return newUser;
     }
 
+    // update a User
     @PutMapping("/users")
     public UserDTO updateUser(@RequestBody UserDTO userDTO) {
         User user = userRepository.findById(userDTO.id()).orElse(null);
@@ -76,9 +87,14 @@ public class UserController {
             throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "invalid user type");
         }
         userRepository.save(user);
-        return new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+        UserDTO newUser = new UserDTO(user.getId(), user.getName(), user.getEmail(), user.getType());
+
+        gradebookService.updateUser(newUser);
+        return newUser;
+
     }
 
+    // delete a user
     @DeleteMapping("/users/{id}")
     public void  updateUser(@PathVariable("id") int id) {
         User user = userRepository.findById(id).orElse(null);
@@ -86,6 +102,6 @@ public class UserController {
             userRepository.delete(user);
         }
 
+        gradebookService.deleteUser(id);
     }
-
 }

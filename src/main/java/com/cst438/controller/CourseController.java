@@ -3,6 +3,7 @@ package com.cst438.controller;
 import com.cst438.domain.*;
 import com.cst438.dto.CourseDTO;
 import com.cst438.dto.SectionDTO;
+import com.cst438.service.GradebookServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,15 +27,17 @@ public class CourseController {
     CourseRepository courseRepository;
 
     @Autowired
-    SectionRepository sectionRepository;
-
-    @Autowired
     TermRepository termRepository;
 
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    GradebookServiceProxy gradebookService;
 
+    /****************************
+        CREATE COURSE
+     ****************************/
     // ADMIN function to create a new course
     @PostMapping("/courses")
     public CourseDTO addCourse(@RequestBody CourseDTO course) {
@@ -43,13 +46,18 @@ public class CourseController {
         c.setTitle(course.title());
         c.setCourseId(course.courseId());
         courseRepository.save(c);
-        return new CourseDTO(
+        CourseDTO courseDTO = new CourseDTO(
                 c.getCourseId(),
                 c.getTitle(),
                 c.getCredits()
         );
+        gradebookService.addCourse(courseDTO);
+        return courseDTO;
     }
 
+    /****************************
+        UPDATE COURSE
+     ****************************/
     // ADMIN function to update a course
     @PutMapping("/courses")
     public CourseDTO updateCourse(@RequestBody CourseDTO course) {
@@ -60,14 +68,19 @@ public class CourseController {
             c.setTitle(course.title());
             c.setCredits(course.credits());
             courseRepository.save(c);
-            return new CourseDTO(
+            CourseDTO courseDTO = new CourseDTO(
                     c.getCourseId(),
                     c.getTitle(),
                     c.getCredits()
             );
+            gradebookService.updateCourse(courseDTO);
+            return courseDTO;
         }
     }
 
+    /****************************
+        DELETE COURSE
+     ****************************/
     // ADMIN function to delete a course
     // delete will fail if the course has sections
     @DeleteMapping("/courses/{courseid}")
@@ -76,9 +89,13 @@ public class CourseController {
         // if course does not exist, do nothing.
         if (c!=null) {
             courseRepository.delete(c);
+            gradebookService.deleteCourse(courseid);
         }
     }
 
+    /****************************
+        GET ALL COURSES
+     ****************************/
     @GetMapping("/courses")
     public List<CourseDTO> getAllCourses() {
         List<Course> courses = courseRepository.findAllByOrderByCourseIdAsc();
@@ -89,10 +106,12 @@ public class CourseController {
         return dto_list;
     }
 
+    /****************************
+        GET TERMS
+     ****************************/
     @GetMapping("/terms")
     public List<Term> getAllTerms() {
         return termRepository.findAllByOrderByTermIdDesc();
     }
-
 
 }

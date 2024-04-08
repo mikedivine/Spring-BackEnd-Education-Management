@@ -9,29 +9,31 @@ import java.util.List;
 public class Section {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="section_no")
     private int sectionNo;  // unique id assigned by database.  Used to enroll into a section.
 
     @ManyToOne
     @JoinColumn(name="course_id", nullable=false)
     private Course course;
+
     @ManyToOne
     @JoinColumn(name="term_id", nullable=false)
     private Term term;
+
     @Column(name="sec_id")
     private int secId;   // sequential numbering of sections of a course in a term:  1, 2, 3, ....
+
     private String building;
     private String room;
     private String times;
     @Column(name="instructor_email")
     private String instructorEmail;
 
-    // TODO  uncomment the following lines
+    @OneToMany(mappedBy="section")
+    List<Enrollment> enrollments;
 
-//    @OneToMany(mappedBy="section")
-//    List<Enrollment> enrollments;
-
+    //commented out for Assignment 6
 //    @OneToMany(mappedBy="section")
 //    List<Assignment> assignments;
 
@@ -99,9 +101,10 @@ public class Section {
         this.instructorEmail = instructorEmail;
     }
 
-//    public List<Enrollment> getEnrollments() {
-//        return enrollments;
-//    }
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
 
-//    public List<Assignment> getAssignments() { return assignments; }
+    //commented out for assignment 6
+ //   public List<Assignment> getAssignments() { return assignments; }
 }
