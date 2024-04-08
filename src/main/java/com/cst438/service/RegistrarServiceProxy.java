@@ -83,10 +83,6 @@ public class RegistrarServiceProxy {
       String courseId;
       Date today = new Date();
 
-      if (messageParts[0] != "MESSAGE") {
-        System.out.println("From Registrar Service: " + messageParts[1]);
-      }
-
       switch (messageParts[0]) {
 
         case "addCourse":
@@ -97,7 +93,6 @@ public class RegistrarServiceProxy {
           System.out.println("Received from Registrar addCourse " + messageParts[1]);
 
           courseRepository.save(course);
-          System.out.println("Course " + courseDTO.title() + " added.");
           sendMessage("MESSAGE Course " + courseDTO.title() + " added.");
           break;
 
@@ -113,7 +108,6 @@ public class RegistrarServiceProxy {
             System.out.println("Received from Registrar updateCourse " + messageParts[1]);
 
             courseRepository.save(course);
-            System.out.println("Course " + courseDTO.title() + " updated.");
             sendMessage("MESSAGE Course " + courseDTO.title() + " updated.");
           }
           break;
@@ -126,7 +120,6 @@ public class RegistrarServiceProxy {
           // if course does not exist, do nothing.
           if (course != null) {
             courseRepository.delete(course);
-            System.out.println("Course " + course.getTitle() + " deleted.");
             sendMessage("MESSAGE Course " + course.getTitle() + " deleted.");
           }
           break;
@@ -166,8 +159,6 @@ public class RegistrarServiceProxy {
           System.out.println("Received from Registrar addSection " + messageParts[1]);
 
           sectionRepository.save(section);
-          System.out.println("Section " + sectionDTO.secId() + " for course " +
-            course.getTitle() + " was added.");
           sendMessage("MESSAGE Section " + sectionDTO.secId() + " for course " +
             course.getTitle() + " was added.");
           break;
@@ -197,7 +188,6 @@ public class RegistrarServiceProxy {
           System.out.println("Received from Registrar updateSection " + messageParts[1]);
 
           sectionRepository.save(section);
-          System.out.println("Section No: " + sectionDTO.secNo() + " was updated.");
           sendMessage("MESSAGE Section No: " + sectionDTO.secNo() + " was updated.");
           break;
 
@@ -214,7 +204,6 @@ public class RegistrarServiceProxy {
           if (section != null) {
             System.out.println("Received from Registrar deleteSection " + messageParts[1]);
             sectionRepository.delete(section);
-            System.out.println("Section No: " + section.getSectionNo() + " was deleted.");
             sendMessage("MESSAGE Section No: " + section.getSectionNo() + " was deleted.");
           }
           break;
@@ -223,6 +212,7 @@ public class RegistrarServiceProxy {
           userDTO = fromJsonString(messageParts[1], UserDTO.class);
           user.setName(userDTO.name());
           user.setEmail(userDTO.email());
+          user.setId(userDTO.id());
 
           // create password and encrypt it
           String password = userDTO.name() + "2024";
@@ -238,7 +228,6 @@ public class RegistrarServiceProxy {
           }
           System.out.println("Received from Registrar addUser " + messageParts[1]);
           userRepository.save(user);
-          System.out.println("User " + user.getName() + " was added.");
           sendMessage("MESSAGE User " + user.getName() + " was added.");
           break;
 
@@ -262,7 +251,6 @@ public class RegistrarServiceProxy {
           }
           System.out.println("Received from Registrar updateUser " + messageParts[1]);
           userRepository.save(user);
-          System.out.println("User " + user.getName() + " was updated.");
           sendMessage("MESSAGE User " + user.getName() + " was updated.");
           break;
 
@@ -273,7 +261,6 @@ public class RegistrarServiceProxy {
           if (user != null) {
             System.out.println("Received from Registrar deleteUser " + messageParts[1]);
             userRepository.delete(user);
-            System.out.println("User " + user.getName() + " was deleted.");
             sendMessage("MESSAGE User " + user.getName() + " was deleted.");
           }
           break;
@@ -296,7 +283,6 @@ public class RegistrarServiceProxy {
           enrollment.setSection(section);
           System.out.println("Received from Registrar addEnrollment " + messageParts[1]);
           enrollmentRepository.save(enrollment);
-          System.out.println("Enrollment for user " + user.getName() + " was added.");
           sendMessage("MESSAGE Enrollment for user " + user.getName() + " was added.");
           break;
 
@@ -327,7 +313,6 @@ public class RegistrarServiceProxy {
               }
             }
             enrollmentRepository.delete(enrollment);
-            System.out.println("Enrollment with ID: " + enrollmentId + " was deleted.");
             sendMessage("MESSAGE Enrollment with ID: " + enrollmentId + " was deleted.");
           } else {
             sendMessage("MESSAGE Course: " + course.getTitle() + " for Section Number: " +
@@ -353,7 +338,7 @@ public class RegistrarServiceProxy {
   }
 
   private void sendMessage(String message) {
-    System.out.println("Gradebook to Registrar: " + message);
+    System.out.println("Outgoing to Registrar Service: " + message);
     rabbitTemplate.convertAndSend(registrarServiceQueue.getName(), message);
   }
 
