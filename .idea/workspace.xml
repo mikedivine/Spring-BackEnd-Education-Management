@@ -5,8 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0fac5f75-ba1d-4953-a77d-456ab62bf6ea" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cst438/controller/AssignmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cst438/controller/AssignmentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/AssignmentControllerSystemTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/AssignmentControllerSystemTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/EnrollmentControllerSystemTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/EnrollmentControllerSystemTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/SectionControllerSystemTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/SectionControllerSystemTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerSystemTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerSystemTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerUnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerUnitTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +41,8 @@
   "keyToString": {
     "JUnit.AssignmentControllerSystemTest.executor": "Run",
     "JUnit.InstructorControllerUnitTest.executor": "Run",
+    "JUnit.SectionControllerSystemTest.executor": "Run",
+    "JUnit.SectionControllerUnitTest.executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
@@ -43,7 +51,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "Spring Boot.Cst438Assignment2Main.executor": "Run",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/meizh/OneDrive/Desktop/cst438 software engineering/cst438_assignment7_rest/src",
+    "last_opened_file_path": "C:/Users/meizh/OneDrive/Desktop/cst438 software engineering/cst438_assignment7_rest",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -57,6 +65,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\meizh\OneDrive\Desktop\cst438 software engineering\cst438_assignment7_rest" />
       <recent name="C:\Users\meizh\OneDrive\Desktop\cst438 software engineering\cst438_assignment7_rest\src" />
     </key>
   </component>
@@ -70,6 +79,14 @@
     <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
       <module name="cst438_assignment7_rest" />
       <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Cst438Assignment2Main (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="Assignment2" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.cst438.Cst438Assignment2Main" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -102,7 +119,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1712635711024</updated>
-      <workItem from="1712635712101" duration="9641000" />
+      <workItem from="1712635712101" duration="12161000" />
     </task>
     <servers />
   </component>
@@ -116,6 +133,11 @@
           <properties class="org.springframework.beans.factory.UnsatisfiedDependencyException" package="org.springframework.beans.factory" />
           <option name="timeStamp" value="1" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/cst438/Cst438Assignment2Main.java</url>
+          <line>11</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
