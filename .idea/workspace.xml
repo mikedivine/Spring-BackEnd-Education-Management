@@ -5,26 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0fac5f75-ba1d-4953-a77d-456ab62bf6ea" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/AssignmentControllerSystemTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/EnrollmentControllerSystemTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/InstructorControllerUnitTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/SectionControllerSystemTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/SectionControllerUnitTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerSystemTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerUnitTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/com/cst438/test/utils/TestUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cst438_assignment7.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cst438/SecurityConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cst438/SecurityConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cst438/controller/StudentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cst438/controller/StudentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cst438/domain/EnrollmentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cst438/domain/EnrollmentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cst438/domain/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cst438/domain/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/cst438/service/TokenService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/cst438/service/TokenService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/AssignmentControllerSystemTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/EnrollmentControllerSystemTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/InstructorControllerUnitTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/SectionControllerSystemTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/SectionControllerUnitTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/SectionControllerWithSecurityUnitTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerSystemTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/controller/StudentControllerUnitTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/cst438/test/utils/TestUtils.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +50,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "Spring Boot.Cst438Assignment2Main.executor": "Run",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/meizh/OneDrive/Desktop/cst438 software engineering/cst438_assignment7_rest",
+    "last_opened_file_path": "C:/Users/meizh/OneDrive/Desktop/cst438 software engineering/cst438_assignment7_rest/src",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -73,6 +62,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\meizh\OneDrive\Desktop\cst438 software engineering\cst438_assignment7_rest\src" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="cst438_assignment7_rest" />
@@ -115,7 +109,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1712635711024</updated>
-      <workItem from="1712635712101" duration="7504000" />
+      <workItem from="1712635712101" duration="7792000" />
     </task>
     <servers />
   </component>
