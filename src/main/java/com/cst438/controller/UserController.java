@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class UserController {
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     // List All users
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @GetMapping("/users")
     public List<UserDTO> findAllUsers() {
 
@@ -40,6 +42,7 @@ public class UserController {
     }
 
     // Create new user
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PostMapping("/users")
     public UserDTO createUser(@RequestBody UserDTO userDTO) {
         User user = new User();
@@ -63,6 +66,7 @@ public class UserController {
     }
 
     // update a User
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PutMapping("/users")
     public UserDTO updateUser(@RequestBody UserDTO userDTO) {
         User user = userRepository.findById(userDTO.id()).orElse(null);
@@ -83,8 +87,9 @@ public class UserController {
     }
 
     // delete a user
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @DeleteMapping("/users/{id}")
-    public void  updateUser(@PathVariable("id") int id) {
+    public void updateUser(@PathVariable("id") int id) {
         User user = userRepository.findById(id).orElse(null);
         if (user!=null) {
             userRepository.delete(user);

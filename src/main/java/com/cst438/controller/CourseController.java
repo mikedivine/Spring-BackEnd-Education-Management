@@ -1,10 +1,13 @@
 package com.cst438.controller;
 
 import com.cst438.domain.*;
-import com.cst438.dto.CourseDTO;
-import com.cst438.dto.SectionDTO;
+import com.cst438.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,6 +38,7 @@ public class CourseController {
         CREATE COURSE
      ****************************/
     // ADMIN function to create a new course
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PostMapping("/courses")
     public CourseDTO addCourse(@RequestBody CourseDTO course) {
         Course c = new Course();
@@ -53,6 +57,7 @@ public class CourseController {
         UPDATE COURSE
      ****************************/
     // ADMIN function to update a course
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PutMapping("/courses")
     public CourseDTO updateCourse(@RequestBody CourseDTO course) {
         Course c = courseRepository.findById(course.courseId()).orElse(null);
@@ -75,6 +80,7 @@ public class CourseController {
      ****************************/
     // ADMIN function to delete a course
     // delete will fail if the course has sections
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @DeleteMapping("/courses/{courseid}")
     public void deleteCourse(@PathVariable String courseid) {
         Course c = courseRepository.findById(courseid).orElse(null);

@@ -4,11 +4,15 @@ import com.cst438.domain.*;
 import com.cst438.dto.SectionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.security.Principal;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -31,6 +35,7 @@ public class SectionController {
          CREATE SECTION
      ****************************/
     // ADMIN function to create a new section
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PostMapping("/sections")
     public SectionDTO addSection(@RequestBody SectionDTO section) {
 
@@ -53,7 +58,7 @@ public class SectionController {
         s.setTimes(section.times());
 
         User instructor = null;
-        if (section.instructorEmail()==null || section.instructorEmail().equals("")) {
+        if (section.instructorEmail()==null || section.instructorEmail().isEmpty()) {
             s.setInstructor_email("");
         } else {
             instructor = userRepository.findByEmail(section.instructorEmail());
@@ -83,6 +88,7 @@ public class SectionController {
           UPDATE SECTION
      ****************************/
     // ADMIN function to update a section
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @PutMapping("/sections")
     public void updateSection(@RequestBody SectionDTO section) {
         // can only change instructor email, sec_id, building, room, times, start, end dates
@@ -95,8 +101,8 @@ public class SectionController {
         s.setRoom(section.room());
         s.setTimes(section.times());
 
-        User instructor = null;
-        if (section.instructorEmail()==null || section.instructorEmail().equals("")) {
+        User instructor;
+        if (section.instructorEmail()==null || section.instructorEmail().isEmpty()) {
             s.setInstructor_email("");
         } else {
             instructor = userRepository.findByEmail(section.instructorEmail());
@@ -113,6 +119,7 @@ public class SectionController {
      ****************************/
     // ADMIN function to delete a section
     //  delete will fail if there are related assignments or enrollments
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_ADMIN')")
     @DeleteMapping("/sections/{sectionno}")
     public void deleteSection(@PathVariable int sectionno) {
         Section s = sectionRepository.findById(sectionno).orElse(null);
@@ -172,12 +179,14 @@ public class SectionController {
      ****************************/
     // get Sections for an instructor
     //  example URL  /sections?instructorEmail=dwisneski@csumb.edu&year=2024&semester=Spring
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     @GetMapping("/sections")
     public List<SectionDTO> getSectionsForInstructor(
-            @RequestParam("email") String instructorEmail,
-            @RequestParam("year") int year ,
-            @RequestParam("semester") String semester )  {
+            @RequestParam("year") int year,
+            @RequestParam("semester") String semester,
+            Principal principal)  {
 
+        String instructorEmail = principal.getName();
 
         List<Section> sections = sectionRepository.findByInstructorEmailAndYearAndSemester(instructorEmail, year, semester);
 
