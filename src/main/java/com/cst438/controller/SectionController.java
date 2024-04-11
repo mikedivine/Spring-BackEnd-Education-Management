@@ -40,7 +40,7 @@ public class SectionController {
     public SectionDTO addSection(@RequestBody SectionDTO section) {
 
         Course course = courseRepository.findById(section.courseId()).orElse(null);
-        if (course == null ){
+        if (course == null ) {
             throw  new ResponseStatusException( HttpStatus.NOT_FOUND, "course not found " + section.courseId());
         }
         Section s = new Section();
