@@ -7,10 +7,12 @@ insert into term (term_id, tyear, semester, add_date, add_deadline, drop_deadlin
 (10, 2024, 'Fall',  '2024-05-01', '2024-08-30', '2024-08-30', '2024-08-15', '2024-12-17');
 
 insert into user_table (id, name, email, password, type) values
-(1, 'david wisneski', 'dwisneski@csumb.edu', '', 'INSTRUCTOR'),
+(1, 'david wisneski', 'dwisneski@csumb.edu', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue', 'INSTRUCTOR'),
 (2, 'joshua gross', 'jgross@csumb.edu', '', 'INSTRUCTOR'),
 (3, 'thomas edison', 'tedison@csumb.edu', '', 'STUDENT'),
-(4, 'fred brooks', 'fbrooks@csumb.edu', '', 'ADMIN');
+(4, 'fred brooks', 'fbrooks@csumb.edu', '', 'ADMIN'),
+(5, 'user', 'user@csumb.edu', '$2a$10$NVM0n8ElaRgg7zWO1CxUdei7vWoPg91Lz2aYavh9.f9q0e4bRadue','STUDENT'),
+(6, 'admin', 'admin@csumb.edu', '$2a$10$8cjz47bjbR4Mn8GMg9IZx.vyjhLXR/SKKMSZ9.mP9vpMu0ssKi8GW' , 'ADMIN');
 
 insert into course values
 ('cst238', 'Introduction to Programming', 5),

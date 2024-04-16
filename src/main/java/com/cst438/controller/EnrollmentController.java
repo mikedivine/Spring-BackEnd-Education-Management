@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.security.Principal;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -32,10 +34,11 @@ public class EnrollmentController {
        ****************************/
     // instructor downloads student enrollments for a section, ordered by student name
     // user must be instructor for the section
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     @GetMapping("/sections/{sectionNo}/enrollments")
     public List<EnrollmentDTO> getEnrollments(
       @PathVariable("sectionNo") int sectionNo,
-      @RequestParam("instructorEmail") String instructorEmail
+      Principal principal
       ) {
 
         List<Enrollment> enrollments =
@@ -51,7 +54,7 @@ public class EnrollmentController {
             User user = e.getUser();
             Section section = e.getSection();
 
-            validateInstructor(instructorEmail, section.getInstructorEmail());
+          validateInstructor(principal.getName(), section.getInstructorEmail());
             Course course = section.getCourse();
             Term term = section.getTerm();
 
@@ -83,10 +86,11 @@ public class EnrollmentController {
      ****************************/
     // instructor uploads enrollments with the final grades for the section
     // user must be instructor for the section
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_INSTRUCTOR')")
     @PutMapping("/enrollments")
     public void updateEnrollmentGrades(
       @RequestBody List<EnrollmentDTO> dlist,
-      @RequestParam("instructorEmail") String instructorEmail
+      Principal principal
       ) {
 
         // For each EnrollmentDTO in the list
@@ -102,7 +106,7 @@ public class EnrollmentController {
 
             Section s = enrollment.getSection();
             // Verify user exists and is an instructor and is the correct instructor
-            validateInstructor(instructorEmail, s.getInstructorEmail());
+            validateInstructor(principal.getName(), s.getInstructorEmail());
 
             enrollment.setGrade(e.grade());
             enrollmentRepository.save(enrollment);
